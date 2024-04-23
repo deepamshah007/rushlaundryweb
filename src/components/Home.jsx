@@ -1,9 +1,8 @@
-import React from 'react'
+import React from "react";
+import Laundries from "./Laundries";
 
 const Home = () => {
-  return (
-    <div>Home</div>
-  )
-}
+  return <Laundries />;
+};
 
-export default Home
+export default Home;

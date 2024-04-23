@@ -1,9 +1,8 @@
-import React from 'react'
+import React from "react";
+import LaundryRegister from "./LaundryRegister";
 
 const Account = () => {
-  return (
-    <div>Account</div>
-  )
-}
+  return <LaundryRegister />;
+};
 
-export default Account
+export default Account;
