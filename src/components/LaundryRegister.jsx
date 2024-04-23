@@ -60,14 +60,6 @@ const LaundryRegister = () => {
     });
   };
 
-  const handlePictureUpload = (e, pictureNumber) => {
-    const file = e.target.files[0];
-    setFormData({
-      ...formData,
-      [`picture${pictureNumber}`]: file,
-    });
-  };
-
   const handleAddService = () => {
     if (newService) {
       setFormData({
