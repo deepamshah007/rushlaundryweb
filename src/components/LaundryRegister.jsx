@@ -6,10 +6,6 @@ import {
   TextField,
   Button,
   Grid,
-  FormControl,
-  Select,
-  MenuItem,
-  InputLabel,
 } from "@mui/material";
 
 import { useNavigate } from "react-router-dom";
@@ -32,19 +28,32 @@ const LaundryRegister = () => {
       Sunday: { openingTime: "", closingTime: "" },
     },
     description: "",
-    services: [],
-    price: "",
+    services: {},
     picture1: null,
     picture2: null,
   });
-
-  const [newService, setNewService] = useState("");
 
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    if (name === "services") {
+      setFormData({ ...formData, services: value });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
+
+  const handleServiceChange = (serviceName, price) => {
+    setFormData({
+      ...formData,
+      services: {
+        ...formData.services,
+        [serviceName]: price,
+      },
+      newService: "",
+      newPrice: "",
+    });
   };
 
   const handleOpeningHoursChange = (day, timeType, value) => {
@@ -60,18 +69,22 @@ const LaundryRegister = () => {
     });
   };
 
-  const handleAddService = () => {
-    if (newService) {
-      setFormData({
-        ...formData,
-        services: [...formData.services, newService],
-      });
-      setNewService("");
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Convert opening hours to string format
+    const formattedFormData = {
+      ...formData,
+      openingHours: Object.fromEntries(
+        Object.entries(formData.openingHours).map(([day, hours]) => [
+          day,
+          {
+            openingTime: hours.openingTime.toString(),
+            closingTime: hours.closingTime.toString(),
+          },
+        ])
+      ),
+    };
 
     // Register the user
     try {
@@ -83,10 +96,12 @@ const LaundryRegister = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            name: formData.ownerName,
-            contactNumber: formData.contactNumber,
-            email: formData.email,
-            password: formData.password,
+            name: formattedFormData.ownerName,
+            email: formattedFormData.email,
+            password: formattedFormData.password,
+            mailingAddress: formattedFormData.location,
+            postalCode: "AAAAA",
+            contactNumber: formattedFormData.contactNumber,
             userType: "laundry",
           }),
         }
@@ -100,36 +115,29 @@ const LaundryRegister = () => {
       const userData = await response.json();
       console.log("User registered successfully:", userData);
 
-      // Now send laundry registration data to the backend
-      const formDataToSend = new FormData();
-      for (const key in formData) {
-        if (formData[key] instanceof File) {
-          formDataToSend.append(key, formData[key]);
-        } else {
-          formDataToSend.append(key, JSON.stringify(formData[key]));
-        }
-      }
-
       const laundryResponse = await fetch(
         "https://rush-laundry-0835134be79d.herokuapp.com/api/laundry",
         {
           method: "POST",
-          body: formDataToSend,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formattedFormData),
         }
       );
 
       if (!laundryResponse.ok) {
-        throw new Error("Failed to register laundrette");
+        throw new Error("Failed to register launderette");
       }
 
       const data = await laundryResponse.json();
-      console.log("Laundrette registered successfully:", data);
+      console.log("Launderette registered successfully:", data);
       // Add any further handling here, such as redirecting to a new page or showing a success message
 
       // navigate home
       navigate("/");
     } catch (error) {
-      console.error("Error registering laundrette:", error.message);
+      console.error("Error registering launderette:", error.message);
       // Handle error, such as displaying an error message to the user
     }
   };
@@ -137,7 +145,7 @@ const LaundryRegister = () => {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Typography variant="h5" align="center" gutterBottom>
-        Register for Laundratte
+        Register for Launderette
       </Typography>
       <Box component="form" onSubmit={handleSubmit}>
         <Grid container spacing={2}>
@@ -250,60 +258,56 @@ const LaundryRegister = () => {
               rows={4}
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <FormControl fullWidth>
-              <InputLabel htmlFor="services">Services</InputLabel>
-              <Select
-                fullWidth
-                label="Services"
-                id="services"
-                name="services"
-                value={formData.services}
-                onChange={handleChange}
-              >
-                <MenuItem value="Washing">Washing</MenuItem>
-                <MenuItem value="Ironing">Ironing</MenuItem>
-                <MenuItem value="Dry Cleaning">Dry Cleaning</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              label="Price"
-              name="price"
-              type="number"
-              value={formData.price}
-              onChange={handleChange}
-            />
-          </Grid>
           <Grid item xs={12}>
             <Typography variant="subtitle1" gutterBottom>
               Services
             </Typography>
-            {formData.services.map((service, index) => (
-              <Typography key={index} variant="body1">
-                {service}
-              </Typography>
-            ))}
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="New Service"
-                  value={newService}
-                  onChange={(e) => setNewService(e.target.value)}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Button
-                  variant="contained"
-                  onClick={handleAddService}
-                  disabled={!newService}
-                >
-                  Add Service
-                </Button>
-              </Grid>
+            <Grid container spacing={2} gap={1}>
+              {Object.keys(formData.services).map((service, index) => (
+                <React.Fragment key={index}>
+                  <Grid item xs={6}>
+                    <TextField
+                      fullWidth
+                      label="Service"
+                      name={`service-${index}`}
+                      value={service}
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <TextField
+                      fullWidth
+                      label="Price"
+                      name={`price-${index}`}
+                      value={formData.services[service]}
+                      onChange={(e) =>
+                        handleServiceChange(service, e.target.value)
+                      }
+                    />
+                  </Grid>
+                </React.Fragment>
+              ))}
+            </Grid>
+            <Grid item xs={12} paddingTop={5}>
+              <TextField
+                fullWidth
+                label="Service"
+                name="newService"
+                onChange={handleChange}
+              />
+              <TextField
+                fullWidth
+                label="Price"
+                name="newPrice"
+                onChange={handleChange}
+              />
+              <Button
+                variant="outlined"
+                onClick={() =>
+                  handleServiceChange(formData.newService, formData.newPrice)
+                }
+              >
+                Add Service
+              </Button>
             </Grid>
           </Grid>
         </Grid>
