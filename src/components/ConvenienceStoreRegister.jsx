@@ -10,7 +10,7 @@ import {
 
 import { useNavigate } from "react-router-dom";
 
-const LaundryRegister = () => {
+const ConvenienceStoreRegister = () => {
   const [formData, setFormData] = useState({
     ownerName: "",
     contactNumber: "",
@@ -29,11 +29,11 @@ const LaundryRegister = () => {
     },
     description: "",
     services: {
-      Washing: "",
-      Drying: "",
-      Ironing: "",
-      "Dry cleaning": "",
-      "Tailoring and alterations": "",
+      Grocery: "",
+      Snacks: "",
+      Beverages: "",
+      Stationery: "",
+      Toiletries: "",
     },
     picture1: null,
     picture2: null,
@@ -139,12 +139,12 @@ const LaundryRegister = () => {
         throw new Error("Failed to register user");
       }
 
-      // Continue with laundry registration
+      // Continue with convenience store registration
       const userData = await response.json();
       console.log("User registered successfully:", userData);
 
-      const laundryResponse = await fetch(
-        "https://rush-laundry-0835134be79d.herokuapp.com/api/laundry",
+      const storeResponse = await fetch(
+        "https://rush-laundry-0835134be79d.herokuapp.com/api/convenience_store",
         {
           method: "POST",
           headers: {
@@ -154,18 +154,18 @@ const LaundryRegister = () => {
         }
       );
 
-      if (!laundryResponse.ok) {
-        throw new Error("Failed to register launderette");
+      if (!storeResponse.ok) {
+        throw new Error("Failed to register convenience store");
       }
 
-      const data = await laundryResponse.json();
-      console.log("Launderette registered successfully:", data);
+      const data = await storeResponse.json();
+      console.log("Convenience store registered successfully:", data);
       // Add any further handling here, such as redirecting to a new page or showing a success message
 
       // navigate home
       navigate("/");
     } catch (error) {
-      console.error("Error registering launderette:", error.message);
+      console.error("Error registering convenience store:", error.message);
       // Handle error, such as displaying an error message to the user
     }
   };
@@ -173,7 +173,7 @@ const LaundryRegister = () => {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Typography variant="h5" align="center" gutterBottom>
-        Register for Launderette
+        Register for Convenience Store
       </Typography>
       <Box component="form" onSubmit={handleSubmit}>
         <Grid container spacing={2}>
@@ -219,7 +219,7 @@ const LaundryRegister = () => {
           <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Laundrette Name"
+              label="Store Name"
               name="name"
               value={formData.name}
               onChange={handleChange}
@@ -338,4 +338,4 @@ const LaundryRegister = () => {
   );
 };
 
-export default LaundryRegister;
+export default ConvenienceStoreRegister;
