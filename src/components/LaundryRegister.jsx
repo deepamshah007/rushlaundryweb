@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Container,
   Typography,
@@ -28,18 +28,25 @@ const LaundryRegister = () => {
       Sunday: { openingTime: "", closingTime: "" },
     },
     description: "",
-    services: {
-      Washing: "",
-      Drying: "",
-      Ironing: "",
-      "Dry cleaning": "",
-      "Tailoring and alterations": "",
-    },
+    services: {},
     picture1: null,
     picture2: null,
     newService: "",
     newPrice: "",
   });
+
+  useEffect(() => {
+    setFormData((prevData) => ({
+      ...prevData,
+      services: {
+        Washing: "",
+        Drying: "",
+        Ironing: "",
+        "Dry cleaning": "",
+        "Tailoring and alterations": "",
+      },
+    }));
+  }, []);
 
   const navigate = useNavigate();
 
@@ -58,6 +65,15 @@ const LaundryRegister = () => {
       },
       newService: "",
       newPrice: "",
+    });
+  };
+
+  const handleRemoveService = (serviceName) => {
+    const updatedServices = { ...formData.services };
+    delete updatedServices[serviceName];
+    setFormData({
+      ...formData,
+      services: updatedServices,
     });
   };
 
@@ -177,7 +193,6 @@ const LaundryRegister = () => {
       </Typography>
       <Box component="form" onSubmit={handleSubmit}>
         <Grid container spacing={2}>
-          {/* Other Fields */}
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
@@ -235,42 +250,59 @@ const LaundryRegister = () => {
             />
           </Grid>
           <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Description"
+              name="description"
+              multiline
+              rows={4}
+              value={formData.description}
+              onChange={handleChange}
+            />
+          </Grid>
+          <Grid item xs={12}>
             <Typography variant="subtitle1" gutterBottom>
               Opening Hours
             </Typography>
             <Grid container spacing={2}>
               {Object.entries(formData.openingHours).map(([day, hours]) => (
                 <Grid item xs={12} sm={6} key={day}>
-                  <TextField
-                    fullWidth
-                    label={`${day} Opening Time`}
-                    name={`openingHours.${day}.openingTime`}
-                    type="time"
-                    value={hours.openingTime}
-                    onChange={(e) =>
-                      handleOpeningHoursChange(
-                        day,
-                        "openingTime",
-                        e.target.value
-                      )
-                    }
-                    inputProps={{ step: 300 }} // 5 minute intervals
-                  />
-                  <TextField
-                    fullWidth
-                    label={`${day} Closing Time`}
-                    name={`openingHours.${day}.closingTime`}
-                    type="time"
-                    value={hours.closingTime}
-                    onChange={(e) =>
-                      handleOpeningHoursChange(
-                        day,
-                        "closingTime",
-                        e.target.value
-                      )
-                    }
-                    inputProps={{ step: 300 }} // 5 minute intervals
-                  />
+                  <Grid container spacing={2}>
+                    <Grid item xs={6}>
+                      <TextField
+                        fullWidth
+                        label={`${day} Opening Time`}
+                        name={`openingHours.${day}.openingTime`}
+                        type="time"
+                        value={hours.openingTime}
+                        onChange={(e) =>
+                          handleOpeningHoursChange(
+                            day,
+                            "openingTime",
+                            e.target.value
+                          )
+                        }
+                        inputProps={{ step: 300 }} // 5 minute intervals
+                      />
+                    </Grid>
+                    <Grid item xs={6}>
+                      <TextField
+                        fullWidth
+                        label={`${day} Closing Time`}
+                        name={`openingHours.${day}.closingTime`}
+                        type="time"
+                        value={hours.closingTime}
+                        onChange={(e) =>
+                          handleOpeningHoursChange(
+                            day,
+                            "closingTime",
+                            e.target.value
+                          )
+                        }
+                        inputProps={{ step: 300 }} // 5 minute intervals
+                      />
+                    </Grid>
+                  </Grid>
                 </Grid>
               ))}
             </Grid>
@@ -279,10 +311,15 @@ const LaundryRegister = () => {
             <Typography variant="subtitle1" gutterBottom>
               Services
             </Typography>
-            <Grid container spacing={2} gap={1}>
+
+            <Grid
+              container
+              spacing={{ xs: 2, md: 3 }}
+              columns={{ xs: 4, sm: 8, md: 12 }}
+            >
               {Object.keys(formData.services).map((service, index) => (
                 <React.Fragment key={index}>
-                  <Grid item xs={6}>
+                  <Grid item xs={5}>
                     <TextField
                       fullWidth
                       label="Service"
@@ -290,7 +327,7 @@ const LaundryRegister = () => {
                       value={service}
                     />
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid item xs={5}>
                     <TextField
                       fullWidth
                       label="Price"
@@ -301,32 +338,46 @@ const LaundryRegister = () => {
                       }
                     />
                   </Grid>
+                  <Grid item xs={2}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => handleRemoveService(service)}
+                    >
+                      Remove
+                    </Button>
+                  </Grid>
                 </React.Fragment>
               ))}
-            </Grid>
-            <Grid item xs={12} paddingTop={5}>
-              <TextField
-                fullWidth
-                label="New Service"
-                name="newService"
-                value={formData.newService}
-                onChange={handleChange}
-              />
-              <TextField
-                fullWidth
-                label="Price"
-                name="newPrice"
-                value={formData.newPrice}
-                onChange={handleChange}
-              />
-              <Button
-                variant="outlined"
-                onClick={() =>
-                  handleServiceChange(formData.newService, formData.newPrice)
-                }
-              >
-                Add Service
-              </Button>
+              <Grid item xs={5}>
+                <TextField
+                  fullWidth
+                  label="Type to Add New Service"
+                  name="newService"
+                  value={formData.newService}
+                  onChange={handleChange}
+                />
+              </Grid>
+
+              <Grid item xs={5}>
+                <TextField
+                  fullWidth
+                  label="Price"
+                  name="newPrice"
+                  value={formData.newPrice}
+                  onChange={handleChange}
+                />
+              </Grid>
+
+              <Grid item xs={2}>
+                <Button
+                  variant="outlined"
+                  onClick={() =>
+                    handleServiceChange(formData.newService, formData.newPrice)
+                  }
+                >
+                  Add Service
+                </Button>
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
