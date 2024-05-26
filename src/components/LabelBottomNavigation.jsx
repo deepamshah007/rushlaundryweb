@@ -14,9 +14,9 @@ export default function LabelBottomNavigation() {
     console.log(newValue);
     // Navigate to the corresponding page based on the selected value
     if (newValue === "home") {
-      navigate("/"); // Navigate to the "Home" page route
+      navigate("/admin/"); // Navigate to the "Home" page route
     } else if (newValue === "account") {
-      navigate("/account"); // Navigate to the "Account" page route
+      navigate("/admin/account"); // Navigate to the "Account" page route
     }
   };
 

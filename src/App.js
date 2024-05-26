@@ -1,35 +1,30 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import './App.css';
+// App.js
 
-import LabelBottomNavigation from './components/LabelBottomNavigation';
-import Home from './components/Home';
-import Account from './components/Account';
-import Login from './components/Login';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import "./App.css";
+
+import Home from "./components/Home/Home";
+import Account from "./components/Admin/Account";
+import Admin from "./components/Admin/Admin";
+
+import { AuthProvider } from "../src/contexts/AuthContext";
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-  };
-
   return (
-    <Router>
-      <div className="App">
-        {isAuthenticated ? (
+    <AuthProvider>
+      <Router>
+        <div className="App">
           <>
-            <LabelBottomNavigation />
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/account" element={<Account />} />
+              <Route path="/admin/" element={<Admin />} />
+              <Route path="/admin/account" element={<Account />} />
             </Routes>
           </>
-        ) : (
-          <Login onLogin={handleLogin} />
-        )}
-      </div>
-    </Router>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 

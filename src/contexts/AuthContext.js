@@ -1,12 +1,9 @@
 import React, { createContext, useEffect, useState } from "react";
-import { Alert } from "@mui/material";
-import Cookies from "universal-cookie";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const cookies = new Cookies();
-  const [token, setToken] = useState(cookies.get("token") || "");
+  const [token, setToken] = useState("");
   const [userData, setUserData] = useState(null);
   const [userId, setUserId] = useState("");
   const [laundryId, setLaundryId] = useState("");
@@ -14,48 +11,34 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     loadTokenAndUserId();
-  }, [userId]);
+  }, []);
 
   useEffect(() => {
-    setLaundryId(userData?.userType === "laundry" ? userData.laundryId : "");
-    if (userData?.userType === "laundry") {
-      loadLaundryId();
+    if (userData && userData.userType === "laundry") {
+      setLaundryId(userData.laundryId);
+      fetchLaundryData(userData.laundryId);
     }
   }, [userData]);
 
-  const loadLaundryId = async () => {
-    try {
-      const storedLaundryId = cookies.get("laundryId");
-
-      if (storedLaundryId) {
-        setLaundryId(storedLaundryId);
-      }
-    } catch (error) {
-      console.error("Failed to load laundry id:", error);
-    }
-  };
-
   const loadTokenAndUserId = async () => {
     try {
-      const storedToken = cookies.get("token");
-      const storedUserId = cookies.get("userId");
+      const storedToken = localStorage.getItem("token");
+      const storedUserId = localStorage.getItem("userId");
 
       if (storedToken) {
         setToken(storedToken);
       }
       if (storedUserId) {
         setUserId(JSON.parse(storedUserId));
-        fetchUserData(); // Fetch user data from MongoDB
+        fetchUserData(JSON.parse(storedUserId));
       }
     } catch (error) {
       console.error("Failed to load token and user id:", error);
     }
   };
 
-  const fetchUserData = async () => {
-    if (!userId) {
-      return;
-    }
+  const fetchUserData = async (userId) => {
+    if (!userId) return;
 
     try {
       const response = await fetch(
@@ -74,7 +57,6 @@ export const AuthProvider = ({ children }) => {
       const user = await response.json();
       setUserData(user);
 
-      // if the user type is laundry, fetch the laundry data
       if (user.userType === "laundry") {
         setLaundryId(user.laundryId);
         fetchLaundryData(user.laundryId);
@@ -106,18 +88,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const saveLaundryId = (laundryId) => {
+  const saveLaundryId = async (laundryId) => {
     try {
-      cookies.set("laundryId", String(laundryId), { path: "/" });
+      localStorage.setItem("laundryId", String(laundryId));
     } catch (error) {
       console.error("Failed to save the laundry Id:", error);
     }
   };
 
-  const saveTokenAndUserId = (token, userId) => {
+  const saveTokenAndUserId = async (token, userId) => {
     try {
-      cookies.set("token", token, { path: "/" });
-      cookies.set("userId", JSON.stringify(userId), { path: "/" });
+      localStorage.setItem("token", token);
+      localStorage.setItem("userId", JSON.stringify(userId));
     } catch (error) {
       console.error("Failed to save token and user Id:", error);
     }
@@ -149,17 +131,22 @@ export const AuthProvider = ({ children }) => {
       );
       const responseData = await response.json();
 
-      console.log(responseData);
-
       if (response.ok) {
-        Alert.alert("Success", responseData.message);
+        window.alert("Success: " + responseData.message);
         setToken(responseData.token);
+        setUserId(responseData.user._id);
+        await saveTokenAndUserId(responseData.token, responseData.user._id);
+
+        if (responseData.user.userType === "laundry") {
+          setLaundryId(responseData.user.laundryId);
+          await saveLaundryId(responseData.user.laundryId);
+        }
       } else {
-        Alert.alert("Error", responseData.error);
+        window.alert("Error: " + responseData.error);
       }
     } catch (error) {
       console.error(error);
-      Alert.alert("Error", "Failed to connect to the server");
+      window.alert("Error: Failed to connect to the server");
     }
   };
 
@@ -181,25 +168,31 @@ export const AuthProvider = ({ children }) => {
       if (response.ok) {
         setToken(responseData.token);
         setUserId(responseData.user._id);
+        await saveTokenAndUserId(responseData.token, responseData.user._id);
+
+        if (responseData.user.userType === "laundry") {
+          setLaundryId(responseData.user.laundryId);
+          await saveLaundryId(responseData.user.laundryId);
+        }
       } else {
-        Alert.alert("Error", responseData.error);
+        window.alert("Error: " + responseData.error);
       }
     } catch (error) {
       console.error(error);
-      Alert.alert("Error", "Failed to connect to the server");
+      window.alert("Error: Failed to connect to the server");
     }
   };
 
   const handleLogout = async () => {
     try {
-      cookies.remove("token", { path: "/" });
-      cookies.remove("userId", { path: "/" });
-      cookies.remove("laundryId", { path: "/" });
+      localStorage.removeItem("token");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("laundryId");
 
-      setToken("");
-      setUserId("");
+      setToken(null);
+      setUserId(null);
       setUserData(null);
-      setLaundryId("");
+      setLaundryId(null);
     } catch (error) {
       console.error("Failed to logout:", error);
     }

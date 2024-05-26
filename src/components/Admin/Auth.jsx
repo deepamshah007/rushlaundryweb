@@ -1,8 +1,8 @@
 import React, { useState, useContext } from "react";
 import { Typography, Box, Button, TextField, Grid } from "@mui/material";
-import { AuthContext } from "../contexts/AuthContext";
-import SocialLoginButton from "./SocialLoginButton";
-import ActionButton from "./ActionButton";
+import { AuthContext } from "../../contexts/AuthContext";
+import SocialLoginButton from "../SocialLoginButton";
+import ActionButton from "../ActionButton";
 import Alert from "@mui/material/Alert";
 
 const Auth = () => {
