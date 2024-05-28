@@ -1,3 +1,5 @@
+// HomeView.js
+
 import React, { useState, useEffect, useContext } from "react";
 import {
   Container,
@@ -14,9 +16,10 @@ import SearchIcon from "@mui/icons-material/Search";
 import { AuthContext } from "../../contexts/AuthContext";
 import LaundryCard from "../LaundryCard";
 import NextCard from "../NextCard";
+import axios from "axios";
 
-const Home = () => {
-  const { userData, token } = useContext(AuthContext);
+const HomeView = () => {
+  const { userData, token, loading: authLoading } = useContext(AuthContext);
   const [searchQuery, setSearchQuery] = useState("");
   const [laundryData, setLaundryData] = useState([]);
   const [filteredLaundryData, setFilteredLaundryData] = useState([]);
@@ -25,14 +28,59 @@ const Home = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchLaundryData();
-    fetchCurrentOrders();
-  });
+    if (authLoading || !userData || !userData._id) return;
 
-  const fetchCurrentOrders = async () => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [laundry, orders] = await Promise.all([
+          fetchLaundryData(token),
+          fetchCurrentOrders(userData._id, token),
+        ]);
+        setLaundryData(laundry);
+        setFilteredLaundryData(laundry);
+        setCurrentOrders(orders);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [userData, token, authLoading]);
+
+  const fetchCurrentOrders = async (userId, token) => {
     try {
-      const response = await fetch(
-        `https://rush-laundry-0835134be79d.herokuapp.com/api/orders/currentorders?role=customer&id=${userData._id}`,
+      const response = await axios.get(
+        `https://rush-laundry-0835134be79d.herokuapp.com/api/orders/currentorders`,
+        {
+          params: {
+            role: "customer",
+            id: userId,
+          },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const sortedOrders = response.data.sort(
+        (a, b) =>
+          new Date(b.expectedReceiveTime) - new Date(a.expectedReceiveTime)
+      );
+
+      return sortedOrders;
+    } catch (error) {
+      console.error("Error fetching current orders:", error);
+      throw new Error("Failed to fetch current orders");
+    }
+  };
+
+  const fetchLaundryData = async (token) => {
+    try {
+      const response = await axios.get(
+        "https://rush-laundry-0835134be79d.herokuapp.com/api/laundry",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -40,33 +88,11 @@ const Home = () => {
         }
       );
 
-      const data = await response.json();
-      const sortedOrders = data.sort(
-        (a, b) =>
-          new Date(b.expectedReceiveTime) - new Date(a.expectedReceiveTime)
-      );
-
-      setCurrentOrders(sortedOrders);
-    } catch (error) {
-      console.log("Error fetching current orders:", error);
-      setError("Failed to fetch current orders");
-    }
-  };
-
-  const fetchLaundryData = async () => {
-    try {
-      const response = await fetch(
-        "https://rush-laundry-0835134be79d.herokuapp.com/api/laundry"
-      );
-      const data = await response.json();
-      setLaundryData(data);
-      setFilteredLaundryData(data);
-      console.log(data);
+      console.log(response.data);
+      return response.data;
     } catch (error) {
       console.error("Error fetching laundry data:", error);
-      setError("Failed to fetch laundry data");
-    } finally {
-      setLoading(false);
+      throw new Error("Failed to fetch laundry data");
     }
   };
 
@@ -88,6 +114,10 @@ const Home = () => {
     // Implement navigation logic here if needed
     console.log("Navigate to laundry details with ID:", laundryId);
   };
+
+  if (authLoading || loading) {
+    return <CircularProgress />;
+  }
 
   return (
     <Container>
@@ -115,7 +145,6 @@ const Home = () => {
           />
         </Box>
 
-        {loading && <CircularProgress />}
         {error && <Alert severity="error">{error}</Alert>}
 
         {currentOrders.length > 0 && (
@@ -157,27 +186,26 @@ const Home = () => {
           </Box>
         )}
 
-        {filteredLaundryData &&
-          filteredLaundryData.map((laundry) => (
-            <Card
-              key={laundry._id}
-              onClick={() => handleLaundryPress(laundry._id)}
-              sx={{ mb: 2, cursor: "pointer" }}
-            >
-              <CardContent>
-                <LaundryCard
-                  name={laundry.name}
-                  address={laundry.location}
-                  services={laundry.services}
-                  prices={laundry.prices}
-                  rating={laundry.rating}
-                />
-              </CardContent>
-            </Card>
-          ))}
+        {filteredLaundryData.map((laundry) => (
+          <Card
+            key={laundry._id}
+            onClick={() => handleLaundryPress(laundry._id)}
+            sx={{ mb: 2, cursor: "pointer" }}
+          >
+            <CardContent>
+              <LaundryCard
+                name={laundry.name}
+                location={laundry.location}
+                services={laundry.services}
+                prices={laundry.prices}
+                rating={laundry.rating}
+              />
+            </CardContent>
+          </Card>
+        ))}
       </Box>
     </Container>
   );
 };
 
-export default Home;
+export default HomeView;
