@@ -27,7 +27,7 @@ const Home = () => {
   useEffect(() => {
     fetchLaundryData();
     fetchCurrentOrders();
-  }, []);
+  });
 
   const fetchCurrentOrders = async () => {
     try {
@@ -61,6 +61,7 @@ const Home = () => {
       const data = await response.json();
       setLaundryData(data);
       setFilteredLaundryData(data);
+      console.log(data);
     } catch (error) {
       console.error("Error fetching laundry data:", error);
       setError("Failed to fetch laundry data");
@@ -166,7 +167,7 @@ const Home = () => {
               <CardContent>
                 <LaundryCard
                   name={laundry.name}
-                  address={laundry.address}
+                  address={laundry.location}
                   services={laundry.services}
                   prices={laundry.prices}
                   rating={laundry.rating}
