@@ -1,28 +1,30 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useHistory } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
+  Typography,
+  Button,
+  Container,
+  Grid,
   Modal,
-  ActivityIndicator,
-} from "react-native";
-import tw from "tailwind-react-native-classnames";
-import Icon from "react-native-vector-icons/Ionicons";
+  Backdrop,
+  Fade,
+  CircularProgress,
+  IconButton,
+} from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import CloseIcon from "@mui/icons-material/Close";
 import { AuthContext } from "../../contexts/AuthContext";
-import ActionButton from "../../Views/ActionButton";
+import ActionButton from "../ActionButton";
 
-const LaundryDetails = ({ route }) => {
-  const history = useHistory();
-  const { laundryId } = route.params;
+const LaundryDetails = () => {
+  const { laundryId } = useParams();
+  const navigate = useNavigate();
+  const { userData, token } = useContext(AuthContext);
 
   const [selectedServices, setSelectedServices] = useState([]);
   const [laundry, setLaundry] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  const { userData, token } = useContext(AuthContext);
 
   useEffect(() => {
     fetchLaundryData();
@@ -75,7 +77,7 @@ const LaundryDetails = ({ route }) => {
   };
 
   const placeOrder = () => {
-    history.push(`/payment/${laundryId}`, {
+    navigate(`/payment/${laundryId}`, {
       userData,
       laundry,
       selectedServices,
@@ -84,7 +86,6 @@ const LaundryDetails = ({ route }) => {
     });
   };
 
-  // Function to check if the laundry is currently open
   const isOpen = () => {
     const now = new Date();
     const dayOfWeek = now
@@ -124,98 +125,170 @@ const LaundryDetails = ({ route }) => {
 
   if (loading || !laundry) {
     return (
-      <View style={tw`flex-1 justify-center items-center`}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
+      <Container
+        style={{
+          paddingTop: "2rem",
+          paddingBottom: "2rem",
+          backgroundColor: "#f0f0f0",
+          minHeight: "100vh",
+        }}
+      >
+        <Grid container justifyContent="center" alignItems="center">
+          <CircularProgress color="primary" size={48} />
+        </Grid>
+      </Container>
     );
   }
 
   return (
-    <ScrollView style={tw`flex-1 p-4 bg-blue-100`}>
-      <TouchableOpacity
-        onPress={() => history.goBack()}
-        style={tw`flex-row items-center mb-6`}
+    <Container
+      style={{
+        paddingTop: "2rem",
+        paddingBottom: "2rem",
+        backgroundColor: "#f0f0f0",
+        minHeight: "100vh",
+      }}
+    >
+      <IconButton
+        onClick={() => navigate(-1)}
+        style={{ marginBottom: "1rem", cursor: "pointer" }}
       >
-        <Icon name="arrow-back" size={30} color="#333" />
-      </TouchableOpacity>
+        <ArrowBackIcon />
+      </IconButton>
 
-      <Text style={tw`text-3xl font-bold mb-4`}>{laundry.name}</Text>
-      <Text style={tw`text-base mb-4 ml-4`}>Address: {laundry.address}</Text>
+      <Typography variant="h3" style={{ marginBottom: "1rem" }}>
+        {laundry.name}
+      </Typography>
+      <Typography variant="body1" style={{ marginBottom: "1rem" }}>
+        Address: {laundry.address}
+      </Typography>
 
-      <TouchableOpacity
-        onPress={() => setModalVisible(true)}
-        style={tw`justify-center items-center border-2 border-gray-400 rounded-lg p-4 mb-4 bg-white shadow-md ml-2`}
+      <Button
+        onClick={() => setModalVisible(true)}
+        style={{
+          marginBottom: "1rem",
+          cursor: "pointer",
+          border: "2px solid #ccc",
+          borderRadius: "8px",
+          padding: "1rem",
+        }}
+        variant="outlined"
+        color="primary"
       >
-        <Text style={[tw`text-lg mb-2`, { color: "#333" }]}>
-          Click to view Opening Hours.
-        </Text>
-        <Text
-          style={[
-            tw`text-xl font-bold`,
-            { color: isOpen() ? "#34C759" : "#FF3B30" },
-          ]}
-        >
-          Currently: {isOpen() ? "Open" : "Closed"}
-        </Text>
-      </TouchableOpacity>
+        Click to view Opening Hours
+      </Button>
 
       <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
+        open={modalVisible}
+        onClose={() => setModalVisible(false)}
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{
+          timeout: 500,
+        }}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
       >
-        <View style={tw`flex-1 m-6 justify-center items-center`}>
-          <View style={tw`bg-white rounded-lg shadow-lg p-6 w-full`}>
-            <View style={tw`flex-row justify-between items-center mb-6`}>
-              <Text style={tw`text-2xl font-bold`}>Opening Hours:</Text>
-              <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Icon name="close" size={30} color="#333" />
-              </TouchableOpacity>
-            </View>
+        <Fade in={modalVisible}>
+          <div
+            style={{
+              backgroundColor: "white",
+              border: "2px solid #ccc",
+              borderRadius: "8px",
+              padding: "2rem",
+              outline: "none",
+              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+              minWidth: "50vw",
+              minHeight: "50vh",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <IconButton
+              style={{
+                position: "absolute",
+                top: "1rem",
+                right: "1rem",
+                cursor: "pointer",
+              }}
+              onClick={() => setModalVisible(false)}
+            >
+              <CloseIcon />
+            </IconButton>
+            <Typography variant="h5" style={{ marginBottom: "1rem" }}>
+              Opening Hours:
+            </Typography>
             {Object.entries(laundry.openingHours).map(([day, hours]) => (
-              <Text key={day} style={tw`text-base mb-2`}>{`${
-                day.charAt(0).toUpperCase() + day.slice(1)
-              }: ${hours}`}</Text>
+              <Typography
+                key={day}
+                variant="body1"
+                style={{ marginBottom: "0.5rem" }}
+              >
+                {day.charAt(0).toUpperCase() + day.slice(1)}: {hours}
+              </Typography>
             ))}
-          </View>
-        </View>
+          </div>
+        </Fade>
       </Modal>
 
-      <Text style={tw`text-lg mb-4 ml-4`}>Services:</Text>
-      {Object.keys(laundry.services).map((service) => (
-        <TouchableOpacity
-          key={service}
-          style={tw`flex-row items-center mb-2 ml-2 border-2 border-gray-500 rounded-lg px-4 py-2 mb-4 bg-white`}
-          onPress={() => handleServiceSelection(service)}
-        >
-          <View
-            style={[
-              tw`w-6 h-6 border-2 rounded-full mr-2`,
-              selectedServices.includes(service) &&
-                tw`bg-blue-500 border-blue-500`,
-            ]}
-          />
-          <View style={tw`flex-1`}>
-            <Text style={tw`text-base text-left`}>{service}</Text>
-          </View>
-          <View>
-            <Text style={tw`text-base text-right`}>
-              {laundry.services[service]}
-            </Text>
-          </View>
-        </TouchableOpacity>
-      ))}
+      <Typography variant="h4" style={{ marginBottom: "1rem" }}>
+        Services:
+      </Typography>
+      <div
+        style={{
+          border: "2px solid #ccc",
+          borderRadius: "8px",
+          padding: "1rem",
+          backgroundColor: "white",
+        }}
+      >
+        {Object.keys(laundry.services).map((service) => (
+          <div
+            key={service}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "0.5rem 1rem",
+              marginBottom: "0.5rem",
+              border: "2px solid #ccc",
+              borderRadius: "8px",
+              backgroundColor: "white",
+              cursor: "pointer",
+            }}
+            onClick={() => handleServiceSelection(service)}
+          >
+            <div>
+              <Typography variant="body1">{service}</Typography>
+            </div>
+            <div>
+              <Typography variant="body1">
+                {laundry.services[service]}
+              </Typography>
+            </div>
+          </div>
+        ))}
+      </div>
 
-      <Text style={tw`text-lg mb-2 ml-4 mt-4 font-semibold`}>
+      <Typography
+        variant="h6"
+        style={{ marginTop: "2rem", marginBottom: "4rem" }}
+      >
         Total Price: £{calculateTotalPrice()}
-      </Text>
+      </Typography>
+
       <ActionButton
         title="Place Order"
         onPress={placeOrder}
         disabled={selectedServices.length === 0}
+        style={{ width: "100%", borderRadius: "8px" }}
       />
-    </ScrollView>
+    </Container>
   );
 };
 

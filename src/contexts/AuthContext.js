@@ -7,8 +7,6 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState("");
   const [userData, setUserData] = useState(null);
-  const [laundryId, setLaundryId] = useState("");
-  const [laundryData, setLaundryData] = useState(null);
 
   const fetchUserData = useCallback(
     async (userId) => {
@@ -37,35 +35,6 @@ export const AuthProvider = ({ children }) => {
     [token]
   );
 
-  const fetchLaundryData = useCallback(
-    async (laundryId) => {
-      if (!laundryId) {
-        console.error("Laundry ID is undefined.");
-        return;
-      }
-
-      try {
-        const response = await axios.get(
-          `https://rush-laundry-0835134be79d.herokuapp.com/api/laundry/${laundryId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!response.data) {
-          throw new Error("Laundry data not found");
-        }
-
-        setLaundryData(response.data);
-      } catch (error) {
-        console.error("Failed to fetch laundry data:", error);
-      }
-    },
-    [token]
-  );
-
   const loadTokenAndUserData = useCallback(async () => {
     try {
       const storedToken = Cookies.get("token");
@@ -77,8 +46,7 @@ export const AuthProvider = ({ children }) => {
       if (storedUserData) {
         const parsedUserData = JSON.parse(storedUserData);
         setUserData(parsedUserData);
-        setLaundryId(parsedUserData.laundryId);
-        fetchUserData(parsedUserData._id); // Fetch user data here
+        fetchUserData(parsedUserData._id);
       }
     } catch (error) {
       console.error("Failed to load token and user data:", error);
@@ -88,13 +56,6 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     loadTokenAndUserData();
   }, [loadTokenAndUserData]);
-
-  useEffect(() => {
-    if (userData && userData.userType === "laundry") {
-      setLaundryId(userData.laundryId);
-      fetchLaundryData(userData.laundryId);
-    }
-  }, [userData, fetchLaundryData]);
 
   const saveUserDataToCookie = (userData) => {
     try {
@@ -124,13 +85,7 @@ export const AuthProvider = ({ children }) => {
         setToken(token);
         setUserData(user);
         saveTokenToCookie(token);
-
-        if (user.userType === "laundry") {
-          setLaundryId(user.laundryId);
-          saveUserDataToCookie({ ...user, laundryId: user.laundryId });
-        } else {
-          saveUserDataToCookie(user);
-        }
+        saveUserDataToCookie(user);
       } else {
         console.error("Authentication failed:", response.data.error);
         window.alert("Error: " + response.data.error);
@@ -170,8 +125,6 @@ export const AuthProvider = ({ children }) => {
 
       setToken(null);
       setUserData(null);
-      setLaundryId(null);
-      setLaundryData(null);
     } catch (error) {
       console.error("Failed to logout:", error);
     }
@@ -185,8 +138,6 @@ export const AuthProvider = ({ children }) => {
         handleLogout,
         token,
         userData,
-        laundryData,
-        laundryId,
       }}
     >
       {children}
