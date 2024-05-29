@@ -1,5 +1,3 @@
-// HomeView.js
-
 import React, { useState, useEffect, useContext } from "react";
 import {
   Container,
@@ -17,50 +15,58 @@ import { AuthContext } from "../../contexts/AuthContext";
 import LaundryCard from "../LaundryCard";
 import NextCard from "../NextCard";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const HomeView = () => {
-  const { userData, token, loading: authLoading } = useContext(AuthContext);
+  const { token, loading: authLoading, userData } = useContext(AuthContext);
   const [searchQuery, setSearchQuery] = useState("");
   const [laundryData, setLaundryData] = useState([]);
   const [filteredLaundryData, setFilteredLaundryData] = useState([]);
   const [currentOrders, setCurrentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (authLoading || !userData || !userData._id) return;
-
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const [laundry, orders] = await Promise.all([
-          fetchLaundryData(token),
-          fetchCurrentOrders(userData._id, token),
-        ]);
-        setLaundryData(laundry);
-        setFilteredLaundryData(laundry);
-        setCurrentOrders(orders);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
-  }, [userData, token, authLoading]);
+  }, []);
 
-  const fetchCurrentOrders = async (userId, token) => {
+  const fetchData = async () => {
+    if (authLoading) return;
+
+    try {
+      setLoading(true);
+
+      const [laundryResponse, ordersResponse] = await Promise.all([
+        fetchLaundryData(),
+        fetchCurrentOrders(),
+      ]);
+
+      setLaundryData(laundryResponse);
+      setFilteredLaundryData(laundryResponse);
+      setCurrentOrders(ordersResponse);
+
+      console.log("userData", userData);
+      console.log("laundryData", laundryData);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      setError(err.message);
+      setLoading(false);
+    }
+  };
+
+  const fetchCurrentOrders = async () => {
     try {
       const response = await axios.get(
         `https://rush-laundry-0835134be79d.herokuapp.com/api/orders/currentorders`,
         {
-          params: {
-            role: "customer",
-            id: userId,
-          },
           headers: {
             Authorization: `Bearer ${token}`,
+          },
+          params: {
+            role: "customer",
+            id: userData.userId,
           },
         }
       );
@@ -77,18 +83,11 @@ const HomeView = () => {
     }
   };
 
-  const fetchLaundryData = async (token) => {
+  const fetchLaundryData = async () => {
     try {
       const response = await axios.get(
-        "https://rush-laundry-0835134be79d.herokuapp.com/api/laundry",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        "https://rush-laundry-0835134be79d.herokuapp.com/api/laundry"
       );
-
-      console.log(response.data);
       return response.data;
     } catch (error) {
       console.error("Error fetching laundry data:", error);
@@ -111,8 +110,7 @@ const HomeView = () => {
   };
 
   const handleLaundryPress = (laundryId) => {
-    // Implement navigation logic here if needed
-    console.log("Navigate to laundry details with ID:", laundryId);
+    navigate(`/laundry/${laundryId}`);
   };
 
   if (authLoading || loading) {
@@ -195,7 +193,7 @@ const HomeView = () => {
             <CardContent>
               <LaundryCard
                 name={laundry.name}
-                location={laundry.location}
+                address={laundry.location}
                 services={laundry.services}
                 prices={laundry.prices}
                 rating={laundry.rating}

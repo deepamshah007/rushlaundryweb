@@ -1,11 +1,13 @@
+// AuthContext.jsx
+
 import React, { createContext, useEffect, useState } from "react";
+import Cookies from "js-cookie";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState("");
   const [userData, setUserData] = useState(null);
-  const [userId, setUserId] = useState("");
   const [laundryId, setLaundryId] = useState("");
   const [laundryData, setLaundryData] = useState(null);
 
@@ -22,18 +24,20 @@ export const AuthProvider = ({ children }) => {
 
   const loadTokenAndUserId = async () => {
     try {
-      const storedToken = localStorage.getItem("token");
-      const storedUserId = localStorage.getItem("userId");
+      const storedToken = Cookies.get("token");
+      const storedUserData = Cookies.get("userData");
 
       if (storedToken) {
         setToken(storedToken);
       }
-      if (storedUserId) {
-        setUserId(JSON.parse(storedUserId));
-        fetchUserData(JSON.parse(storedUserId));
+      if (storedUserData) {
+        const parsedUserData = JSON.parse(storedUserData);
+        setUserData(parsedUserData);
+        setLaundryId(parsedUserData.laundryId);
+        fetchLaundryData(parsedUserData.laundryId);
       }
     } catch (error) {
-      console.error("Failed to load token and user id:", error);
+      console.error("Failed to load token and user data:", error);
     }
   };
 
@@ -56,17 +60,18 @@ export const AuthProvider = ({ children }) => {
 
       const user = await response.json();
       setUserData(user);
-
-      if (user.userType === "laundry") {
-        setLaundryId(user.laundryId);
-        fetchLaundryData(user.laundryId);
-      }
+      saveUserDataToCookie(user);
     } catch (error) {
       console.error("Failed to fetch user data:", error);
     }
   };
 
   const fetchLaundryData = async (laundryId) => {
+    if (!laundryId) {
+      console.error("Laundry ID is undefined.");
+      return;
+    }
+
     try {
       const response = await fetch(
         `https://rush-laundry-0835134be79d.herokuapp.com/api/laundry/${laundryId}`,
@@ -88,20 +93,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const saveLaundryId = async (laundryId) => {
+  const saveUserDataToCookie = (userData) => {
     try {
-      localStorage.setItem("laundryId", String(laundryId));
+      Cookies.set("userData", JSON.stringify(userData), { expires: 7 });
     } catch (error) {
-      console.error("Failed to save the laundry Id:", error);
+      console.error("Failed to save user data to cookie:", error);
     }
   };
 
   const saveTokenAndUserId = async (token, userId) => {
     try {
-      localStorage.setItem("token", token);
-      localStorage.setItem("userId", JSON.stringify(userId));
+      Cookies.set("token", token, { expires: 7 });
     } catch (error) {
-      console.error("Failed to save token and user Id:", error);
+      console.error("Failed to save token to cookie:", error);
     }
   };
 
@@ -133,13 +137,16 @@ export const AuthProvider = ({ children }) => {
 
       if (response.ok) {
         window.alert("Success: " + responseData.message);
-        setToken(responseData.token);
-        setUserId(responseData.user._id);
-        await saveTokenAndUserId(responseData.token, responseData.user._id);
+        const { token, user } = responseData;
+        setToken(token);
+        setUserData(user);
+        saveTokenAndUserId(token, user._id);
 
-        if (responseData.user.userType === "laundry") {
-          setLaundryId(responseData.user.laundryId);
-          await saveLaundryId(responseData.user.laundryId);
+        if (user.userType === "laundry") {
+          setLaundryId(user.laundryId);
+          saveUserDataToCookie({ ...user, laundryId: user.laundryId });
+        } else {
+          saveUserDataToCookie(user);
         }
       } else {
         window.alert("Error: " + responseData.error);
@@ -166,13 +173,16 @@ export const AuthProvider = ({ children }) => {
       const responseData = await response.json();
 
       if (response.ok) {
-        setToken(responseData.token);
-        setUserId(responseData.user._id);
-        await saveTokenAndUserId(responseData.token, responseData.user._id);
+        const { token, user } = responseData;
+        setToken(token);
+        setUserData(user);
+        saveTokenAndUserId(token, user._id);
 
-        if (responseData.user.userType === "laundry") {
-          setLaundryId(responseData.user.laundryId);
-          await saveLaundryId(responseData.user.laundryId);
+        if (user.userType === "laundry") {
+          setLaundryId(user.laundryId);
+          saveUserDataToCookie({ ...user, laundryId: user.laundryId });
+        } else {
+          saveUserDataToCookie(user);
         }
       } else {
         window.alert("Error: " + responseData.error);
@@ -185,14 +195,13 @@ export const AuthProvider = ({ children }) => {
 
   const handleLogout = async () => {
     try {
-      localStorage.removeItem("token");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("laundryId");
+      Cookies.remove("token");
+      Cookies.remove("userData");
 
       setToken(null);
-      setUserId(null);
       setUserData(null);
       setLaundryId(null);
+      setLaundryData(null);
     } catch (error) {
       console.error("Failed to logout:", error);
     }
