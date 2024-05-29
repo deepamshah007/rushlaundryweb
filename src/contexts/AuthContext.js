@@ -1,6 +1,4 @@
-// AuthContext.jsx
-
-import React, { createContext, useEffect, useState, useCallback } from "react";
+import React, { createContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
 
@@ -13,18 +11,17 @@ export const AuthProvider = ({ children }) => {
   const [laundryData, setLaundryData] = useState(null);
 
   useEffect(() => {
-    fetchUserData();
-    loadTokenAndUserId();
-  });
+    loadTokenAndUserData();
+  }, []);
 
   useEffect(() => {
     if (userData && userData.userType === "laundry") {
       setLaundryId(userData.laundryId);
       fetchLaundryData(userData.laundryId);
     }
-  }, [fetchLaundryData, userData]);
+  }, [userData]);
 
-  const loadTokenAndUserId = async () => {
+  const loadTokenAndUserData = async () => {
     try {
       const storedToken = Cookies.get("token");
       const storedUserData = Cookies.get("userData");
@@ -36,7 +33,7 @@ export const AuthProvider = ({ children }) => {
         const parsedUserData = JSON.parse(storedUserData);
         setUserData(parsedUserData);
         setLaundryId(parsedUserData.laundryId);
-        fetchLaundryData(parsedUserData.laundryId);
+        fetchUserData(parsedUserData._id);
       }
     } catch (error) {
       console.error("Failed to load token and user data:", error);
@@ -67,8 +64,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const fetchLaundryData = useCallback(async (laundryId) => {
+  const fetchLaundryData = async (laundryId) => {
     if (!laundryId) {
       console.error("Laundry ID is undefined.");
       return;
@@ -92,7 +88,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Failed to fetch laundry data:", error);
     }
-  });
+  };
 
   const saveUserDataToCookie = (userData) => {
     try {
@@ -102,7 +98,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const saveTokenAndUserId = async (token, userId) => {
+  const saveTokenToCookie = (token) => {
     try {
       Cookies.set("token", token, { expires: 7 });
     } catch (error) {
@@ -110,21 +106,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const handleAuth = async (url, email, password) => {
+  const handleAuth = async (url, data) => {
     try {
       const response = await axios.post(
         `https://rush-laundry-0835134be79d.herokuapp.com/api/${url}`,
-        {
-          email: email.toLowerCase(),
-          password,
-        }
+        data
       );
 
       if (response.status === 200) {
         const { token, user } = response.data;
         setToken(token);
         setUserData(user);
-        saveTokenAndUserId(token, user._id);
+        saveTokenToCookie(token);
 
         if (user.userType === "laundry") {
           setLaundryId(user.laundryId);
@@ -150,19 +143,18 @@ export const AuthProvider = ({ children }) => {
     userType,
     password
   ) => {
-    handleAuth(
-      "register",
-      email,
-      password,
+    handleAuth("register", {
       name,
+      email,
       mailingAddress,
       phoneNumber,
-      userType
-    );
+      userType,
+      password,
+    });
   };
 
   const handleLogin = async (email, password) => {
-    handleAuth("login", email, password);
+    handleAuth("login", { email, password });
   };
 
   const handleLogout = async () => {
