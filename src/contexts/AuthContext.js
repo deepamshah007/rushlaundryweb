@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useState, useCallback } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
 
@@ -10,18 +10,63 @@ export const AuthProvider = ({ children }) => {
   const [laundryId, setLaundryId] = useState("");
   const [laundryData, setLaundryData] = useState(null);
 
-  useEffect(() => {
-    loadTokenAndUserData();
-  }, []);
+  const fetchUserData = useCallback(
+    async (userId) => {
+      if (!userId) return;
 
-  useEffect(() => {
-    if (userData && userData.userType === "laundry") {
-      setLaundryId(userData.laundryId);
-      fetchLaundryData(userData.laundryId);
-    }
-  }, [userData]);
+      try {
+        const response = await axios.get(
+          `https://rush-laundry-0835134be79d.herokuapp.com/api/users/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-  const loadTokenAndUserData = async () => {
+        if (!response.data) {
+          throw new Error("User data not found");
+        }
+
+        setUserData(response.data);
+        saveUserDataToCookie(response.data);
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      }
+    },
+    [token]
+  );
+
+  const fetchLaundryData = useCallback(
+    async (laundryId) => {
+      if (!laundryId) {
+        console.error("Laundry ID is undefined.");
+        return;
+      }
+
+      try {
+        const response = await axios.get(
+          `https://rush-laundry-0835134be79d.herokuapp.com/api/laundry/${laundryId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.data) {
+          throw new Error("Laundry data not found");
+        }
+
+        setLaundryData(response.data);
+      } catch (error) {
+        console.error("Failed to fetch laundry data:", error);
+      }
+    },
+    [token]
+  );
+
+  const loadTokenAndUserData = useCallback(async () => {
     try {
       const storedToken = Cookies.get("token");
       const storedUserData = Cookies.get("userData");
@@ -33,62 +78,23 @@ export const AuthProvider = ({ children }) => {
         const parsedUserData = JSON.parse(storedUserData);
         setUserData(parsedUserData);
         setLaundryId(parsedUserData.laundryId);
-        fetchUserData(parsedUserData._id);
+        fetchUserData(parsedUserData._id); // Fetch user data here
       }
     } catch (error) {
       console.error("Failed to load token and user data:", error);
     }
-  };
+  }, [fetchUserData]);
 
-  const fetchUserData = async (userId) => {
-    if (!userId) return;
+  useEffect(() => {
+    loadTokenAndUserData();
+  }, [loadTokenAndUserData]);
 
-    try {
-      const response = await axios.get(
-        `https://rush-laundry-0835134be79d.herokuapp.com/api/users/${userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.data) {
-        throw new Error("User data not found");
-      }
-
-      setUserData(response.data);
-      saveUserDataToCookie(response.data);
-    } catch (error) {
-      console.error("Failed to fetch user data:", error);
+  useEffect(() => {
+    if (userData && userData.userType === "laundry") {
+      setLaundryId(userData.laundryId);
+      fetchLaundryData(userData.laundryId);
     }
-  };
-
-  const fetchLaundryData = async (laundryId) => {
-    if (!laundryId) {
-      console.error("Laundry ID is undefined.");
-      return;
-    }
-
-    try {
-      const response = await axios.get(
-        `https://rush-laundry-0835134be79d.herokuapp.com/api/laundry/${laundryId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.data) {
-        throw new Error("Laundry data not found");
-      }
-
-      setLaundryData(response.data);
-    } catch (error) {
-      console.error("Failed to fetch laundry data:", error);
-    }
-  };
+  }, [userData, fetchLaundryData]);
 
   const saveUserDataToCookie = (userData) => {
     try {
