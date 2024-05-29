@@ -1,6 +1,6 @@
 // AuthContext.jsx
 
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useEffect, useState, useCallback } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
 
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
       setLaundryId(userData.laundryId);
       fetchLaundryData(userData.laundryId);
     }
-  }, []);
+  }, [fetchLaundryData, userData]);
 
   const loadTokenAndUserId = async () => {
     try {
@@ -67,7 +67,8 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const fetchLaundryData = async (laundryId) => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const fetchLaundryData = useCallback(async (laundryId) => {
     if (!laundryId) {
       console.error("Laundry ID is undefined.");
       return;
@@ -91,7 +92,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Failed to fetch laundry data:", error);
     }
-  };
+  });
 
   const saveUserDataToCookie = (userData) => {
     try {
