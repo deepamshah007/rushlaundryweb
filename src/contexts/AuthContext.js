@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
       setLaundryId(userData.laundryId);
       fetchLaundryData(userData.laundryId);
     }
-  }, [userData]);
+  }, []);
 
   const loadTokenAndUserId = async () => {
     try {
