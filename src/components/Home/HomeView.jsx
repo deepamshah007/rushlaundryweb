@@ -29,7 +29,7 @@ const HomeView = () => {
 
   useEffect(() => {
     fetchData();
-  });
+  }, []);
 
   const fetchData = async () => {
     if (authLoading) return;
