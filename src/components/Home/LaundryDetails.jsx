@@ -10,6 +10,7 @@ import {
   Fade,
   CircularProgress,
   IconButton,
+  Checkbox,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CloseIcon from "@mui/icons-material/Close";
@@ -27,32 +28,34 @@ const LaundryDetails = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchLaundryData();
-  }, [laundryId, token]);
+    const fetchLaundryData = async () => {
+      try {
+        const response = await fetch(
+          `https://rush-laundry-0835134be79d.herokuapp.com/api/laundry/${laundryId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-  const fetchLaundryData = async () => {
-    try {
-      const response = await fetch(
-        `https://rush-laundry-0835134be79d.herokuapp.com/api/laundry/${laundryId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        if (response.ok) {
+          const data = await response.json();
+          setLaundry(data);
+        } else {
+          console.log("Laundry not found");
         }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setLaundry(data);
-      } else {
-        console.log("Laundry not found");
+      } catch (error) {
+        console.log("Error fetching laundry data:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.log("Error fetching laundry data:", error);
-    } finally {
-      setLoading(false);
+    };
+
+    if (laundryId && token) {
+      fetchLaundryData();
     }
-  };
+  }, [laundryId, token]);
 
   const handleServiceSelection = (service) => {
     if (selectedServices.includes(service)) {
@@ -69,7 +72,8 @@ const LaundryDetails = () => {
       const price = laundry.services[service];
 
       if (price) {
-        totalPrice += parseFloat(price.slice(1));
+        // Remove the pound sign and parse the price as a float
+        totalPrice += parseFloat(price.replace(/[^0-9.-]+/g, ""));
       }
     });
 
@@ -78,11 +82,13 @@ const LaundryDetails = () => {
 
   const placeOrder = () => {
     navigate(`/payment/${laundryId}`, {
-      userData,
-      laundry,
-      selectedServices,
-      token,
-      totalPrice: calculateTotalPrice(),
+      state: {
+        userData,
+        laundry,
+        selectedServices,
+        token,
+        totalPrice: calculateTotalPrice(),
+      },
     });
   };
 
@@ -247,7 +253,7 @@ const LaundryDetails = () => {
           backgroundColor: "white",
         }}
       >
-        {Object.keys(laundry.services).map((service) => (
+        {Object.entries(laundry.services).map(([service, price]) => (
           <div
             key={service}
             style={{
@@ -263,14 +269,13 @@ const LaundryDetails = () => {
             }}
             onClick={() => handleServiceSelection(service)}
           >
-            <div>
-              <Typography variant="body1">{service}</Typography>
-            </div>
-            <div>
-              <Typography variant="body1">
-                {laundry.services[service]}
-              </Typography>
-            </div>
+            <Checkbox
+              checked={selectedServices.includes(service)}
+              onChange={() => handleServiceSelection(service)}
+              color="primary"
+            />
+            <Typography variant="body1">{service}</Typography>
+            <Typography variant="body1">{price}</Typography>
           </div>
         ))}
       </div>
@@ -280,6 +285,10 @@ const LaundryDetails = () => {
         style={{ marginTop: "2rem", marginBottom: "4rem" }}
       >
         Total Price: £{calculateTotalPrice()}
+      </Typography>
+
+      <Typography variant="body1" style={{ marginBottom: "1rem" }}>
+        {isOpen() ? "Open Now" : "Closed Now"}
       </Typography>
 
       <ActionButton

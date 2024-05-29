@@ -15,25 +15,27 @@ const Account = () => {
     useContext(AuthContext);
 
   useEffect(() => {
-    fetchOrderHistory();
-  }, [userData, token]);
+    const fetchOrderHistory = async () => {
+      try {
+        const response = await fetch(
+          `https://rush-laundry-0835134be79d.herokuapp.com/api/orders/deliveredOrders/${userData._id}?userType=${userData.userType}&laundryId=${laundryId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const data = await response.json();
+        setOrderHistory(data);
+      } catch (error) {
+        console.log("Error fetching orders:", error);
+      }
+    };
 
-  const fetchOrderHistory = async () => {
-    try {
-      const response = await fetch(
-        `https://rush-laundry-0835134be79d.herokuapp.com/api/orders/deliveredOrders/${userData._id}?userType=${userData.userType}&laundryId=${laundryId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      const data = await response.json();
-      setOrderHistory(data);
-    } catch (error) {
-      console.log("Error fetching orders:", error);
+    if (userData && token) {
+      fetchOrderHistory();
     }
-  };
+  }, [userData, token, laundryId]);
 
   if (!userData) {
     return (
@@ -143,7 +145,7 @@ const Account = () => {
 
       <Button
         variant="contained"
-        color="secondary"
+        color="error"
         style={{ borderRadius: "8px", width: "12rem", marginBottom: "1rem" }}
         onClick={handleLogout}
       >

@@ -16,7 +16,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const HomeView = () => {
-  const { token, loading: authLoading, userData } = useContext(AuthContext);
+  const { loading: authLoading } = useContext(AuthContext);
   const [searchQuery, setSearchQuery] = useState("");
   const [laundryData, setLaundryData] = useState([]);
   const [filteredLaundryData, setFilteredLaundryData] = useState([]);
