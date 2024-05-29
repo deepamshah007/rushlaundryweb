@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import {
   Container,
   Box,
@@ -27,34 +27,7 @@ const HomeView = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    if (authLoading) return;
-
-    try {
-      setLoading(true);
-
-      const [laundryResponse, ordersResponse] = await Promise.all([
-        fetchLaundryData(),
-        fetchCurrentOrders(),
-      ]);
-
-      setLaundryData(laundryResponse);
-      setFilteredLaundryData(laundryResponse);
-      setCurrentOrders(ordersResponse);
-
-      setLoading(false);
-    } catch (err) {
-      console.error("Error fetching data:", err);
-      setError(err.message);
-      setLoading(false);
-    }
-  };
-
-  const fetchCurrentOrders = async () => {
+  const fetchCurrentOrders = useCallback(async () => {
     try {
       const response = await axios.get(
         `https://rush-laundry-0835134be79d.herokuapp.com/api/orders/currentorders`,
@@ -79,9 +52,9 @@ const HomeView = () => {
       console.error("Error fetching current orders:", error);
       throw new Error("Failed to fetch current orders");
     }
-  };
+  }, [token, userData]);
 
-  const fetchLaundryData = async () => {
+  const fetchLaundryData = useCallback(async () => {
     try {
       const response = await axios.get(
         "https://rush-laundry-0835134be79d.herokuapp.com/api/laundry"
@@ -91,7 +64,34 @@ const HomeView = () => {
       console.error("Error fetching laundry data:", error);
       throw new Error("Failed to fetch laundry data");
     }
-  };
+  }, []);
+
+  const fetchData = useCallback(async () => {
+    if (authLoading) return;
+
+    try {
+      setLoading(true);
+
+      const [laundryResponse, ordersResponse] = await Promise.all([
+        fetchLaundryData(),
+        fetchCurrentOrders(),
+      ]);
+
+      setLaundryData(laundryResponse);
+      setFilteredLaundryData(laundryResponse);
+      setCurrentOrders(ordersResponse);
+
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      setError(err.message);
+      setLoading(false);
+    }
+  }, [authLoading, fetchLaundryData, fetchCurrentOrders]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleSearch = (event) => {
     const query = event.target.value;
