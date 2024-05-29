@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -17,7 +17,7 @@ const CurrentOrders = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchCurrentOrders = async () => {
+  const fetchCurrentOrders = useCallback(async () => {
     try {
       const response = await axios.get(
         `https://rush-laundry-0835134be79d.herokuapp.com/api/orders/currentorders?role=customer&id=${userData._id}`,
@@ -40,11 +40,11 @@ const CurrentOrders = () => {
       setError("Failed to fetch current orders");
       setLoading(false);
     }
-  };
+  }, [token, userData]);
 
   useEffect(() => {
     fetchCurrentOrders();
-  }, [token, userData]);
+  }, [fetchCurrentOrders]);
 
   if (loading) {
     return <CircularProgress />;
