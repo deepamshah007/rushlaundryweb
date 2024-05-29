@@ -29,7 +29,7 @@ const HomeView = () => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [userData]);
 
   const fetchData = async () => {
     if (authLoading) return;
@@ -46,8 +46,6 @@ const HomeView = () => {
       setFilteredLaundryData(laundryResponse);
       setCurrentOrders(ordersResponse);
 
-      console.log("userData", userData);
-      console.log("laundryData", laundryData);
       setLoading(false);
     } catch (err) {
       console.error("Error fetching data:", err);

@@ -8,7 +8,6 @@ import {
 import "./App.css";
 
 import Home from "./components/Home/HomeView";
-import Account from "./components/Admin/Account";
 import Admin from "./components/Admin/Admin";
 import Auth from "./components/Account/Auth";
 import { AuthContext } from "./contexts/AuthContext";

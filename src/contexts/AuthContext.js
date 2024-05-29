@@ -2,6 +2,7 @@
 
 import React, { createContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
+import axios from "axios";
 
 export const AuthContext = createContext();
 
@@ -45,7 +46,7 @@ export const AuthProvider = ({ children }) => {
     if (!userId) return;
 
     try {
-      const response = await fetch(
+      const response = await axios.get(
         `https://rush-laundry-0835134be79d.herokuapp.com/api/users/${userId}`,
         {
           headers: {
@@ -54,13 +55,12 @@ export const AuthProvider = ({ children }) => {
         }
       );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.data) {
+        throw new Error("User data not found");
       }
 
-      const user = await response.json();
-      setUserData(user);
-      saveUserDataToCookie(user);
+      setUserData(response.data);
+      saveUserDataToCookie(response.data);
     } catch (error) {
       console.error("Failed to fetch user data:", error);
     }
@@ -73,7 +73,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     try {
-      const response = await fetch(
+      const response = await axios.get(
         `https://rush-laundry-0835134be79d.herokuapp.com/api/laundry/${laundryId}`,
         {
           headers: {
@@ -82,12 +82,11 @@ export const AuthProvider = ({ children }) => {
         }
       );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.data) {
+        throw new Error("Laundry data not found");
       }
 
-      const laundry = await response.json();
-      setLaundryData(laundry);
+      setLaundryData(response.data);
     } catch (error) {
       console.error("Failed to fetch laundry data:", error);
     }
@@ -109,6 +108,38 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const handleAuth = async (url, email, password) => {
+    try {
+      const response = await axios.post(
+        `https://rush-laundry-0835134be79d.herokuapp.com/api/${url}`,
+        {
+          email: email.toLowerCase(),
+          password,
+        }
+      );
+
+      if (response.status === 200) {
+        const { token, user } = response.data;
+        setToken(token);
+        setUserData(user);
+        saveTokenAndUserId(token, user._id);
+
+        if (user.userType === "laundry") {
+          setLaundryId(user.laundryId);
+          saveUserDataToCookie({ ...user, laundryId: user.laundryId });
+        } else {
+          saveUserDataToCookie(user);
+        }
+      } else {
+        console.error("Authentication failed:", response.data.error);
+        window.alert("Error: " + response.data.error);
+      }
+    } catch (error) {
+      console.error("Failed to authenticate:", error);
+      window.alert("Error: Failed to connect to the server");
+    }
+  };
+
   const handleRegister = async (
     name,
     email,
@@ -117,80 +148,19 @@ export const AuthProvider = ({ children }) => {
     userType,
     password
   ) => {
-    try {
-      const response = await fetch(
-        "https://rush-laundry-0835134be79d.herokuapp.com/api/register",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name,
-            email: email.toLowerCase(),
-            password,
-            mailingAddress,
-            phoneNumber,
-            userType,
-          }),
-        }
-      );
-      const responseData = await response.json();
-
-      if (response.ok) {
-        window.alert("Success: " + responseData.message);
-        const { token, user } = responseData;
-        setToken(token);
-        setUserData(user);
-        saveTokenAndUserId(token, user._id);
-
-        if (user.userType === "laundry") {
-          setLaundryId(user.laundryId);
-          saveUserDataToCookie({ ...user, laundryId: user.laundryId });
-        } else {
-          saveUserDataToCookie(user);
-        }
-      } else {
-        window.alert("Error: " + responseData.error);
-      }
-    } catch (error) {
-      console.error(error);
-      window.alert("Error: Failed to connect to the server");
-    }
+    handleAuth(
+      "register",
+      email,
+      password,
+      name,
+      mailingAddress,
+      phoneNumber,
+      userType
+    );
   };
 
   const handleLogin = async (email, password) => {
-    try {
-      const response = await fetch(
-        "https://rush-laundry-0835134be79d.herokuapp.com/api/login",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: email.toLowerCase(),
-            password,
-          }),
-        }
-      );
-      const responseData = await response.json();
-
-      if (response.ok) {
-        const { token, user } = responseData;
-        setToken(token);
-        setUserData(user);
-        saveTokenAndUserId(token, user._id);
-
-        if (user.userType === "laundry") {
-          setLaundryId(user.laundryId);
-          saveUserDataToCookie({ ...user, laundryId: user.laundryId });
-        } else {
-          saveUserDataToCookie(user);
-        }
-      } else {
-        window.alert("Error: " + responseData.error);
-      }
-    } catch (error) {
-      console.error(error);
-      window.alert("Error: Failed to connect to the server");
-    }
+    handleAuth("login", email, password);
   };
 
   const handleLogout = async () => {
