@@ -13,8 +13,9 @@ export const AuthProvider = ({ children }) => {
   const [laundryData, setLaundryData] = useState(null);
 
   useEffect(() => {
+    fetchUserData();
     loadTokenAndUserId();
-  }, []);
+  });
 
   useEffect(() => {
     if (userData && userData.userType === "laundry") {

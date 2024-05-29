@@ -33,6 +33,7 @@ const Auth = () => {
       navigate("/");
     } catch (error) {
       setError("Failed to login. Please check your credentials.");
+      setSnackbarMessage("Failed to login. Please check your credentials.");
       setLoading(false);
     }
   };
