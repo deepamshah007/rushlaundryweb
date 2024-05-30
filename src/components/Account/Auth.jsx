@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   Container,
   Typography,
@@ -20,8 +20,19 @@ const Auth = () => {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  const { handleLogin } = useContext(AuthContext);
+  const { handleLogin, token, userData } = useContext(AuthContext);
   const navigate = useNavigate();
+
+  // Redirect if user is already logged in
+  useEffect(() => {
+    if (token && userData) {
+      if (userData.userType === "customer") {
+        navigate("/");
+      } else if (userData.userType === "rider") {
+        navigate("/riderScreen");
+      }
+    }
+  }, [token, userData, navigate]);
 
   const handleSubmit = async () => {
     setLoading(true);

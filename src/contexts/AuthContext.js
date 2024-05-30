@@ -4,37 +4,36 @@ import axios from "axios";
 
 export const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState("");
+export const AuthProvider = ({ children, navigate }) => {
+  const [token, setToken] = useState(null);
   const [userData, setUserData] = useState(null);
 
-  const fetchUserData = useCallback(
-    async (userId) => {
-      if (!userId) return;
+  // Fetch user data from API
+  const fetchUserData = useCallback(async (userId, token) => {
+    if (!userId || !token) return;
 
-      try {
-        const response = await axios.get(
-          `https://rush-laundry-0835134be79d.herokuapp.com/api/users/${userId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (!response.data) {
-          throw new Error("User data not found");
+    try {
+      const response = await axios.get(
+        `https://rush-laundry-0835134be79d.herokuapp.com/api/users/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
+      );
 
-        setUserData(response.data);
-        saveUserDataToCookie(response.data);
-      } catch (error) {
-        console.error("Failed to fetch user data:", error);
+      if (!response.data) {
+        throw new Error("User data not found");
       }
-    },
-    [token]
-  );
 
+      setUserData(response.data);
+      saveUserDataToCookie(response.data);
+    } catch (error) {
+      console.error("Failed to fetch user data:", error);
+    }
+  }, []);
+
+  // Load token and user data from cookies
   const loadTokenAndUserData = useCallback(async () => {
     try {
       const storedToken = Cookies.get("token");
@@ -46,7 +45,7 @@ export const AuthProvider = ({ children }) => {
       if (storedUserData) {
         const parsedUserData = JSON.parse(storedUserData);
         setUserData(parsedUserData);
-        fetchUserData(parsedUserData._id);
+        fetchUserData(parsedUserData._id, storedToken);
       }
     } catch (error) {
       console.error("Failed to load token and user data:", error);
@@ -57,6 +56,7 @@ export const AuthProvider = ({ children }) => {
     loadTokenAndUserData();
   }, [loadTokenAndUserData]);
 
+  // Save user data to cookies
   const saveUserDataToCookie = (userData) => {
     try {
       Cookies.set("userData", JSON.stringify(userData), { expires: 7 });
@@ -65,6 +65,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Save token to cookies
   const saveTokenToCookie = (token) => {
     try {
       Cookies.set("token", token, { expires: 7 });
@@ -73,6 +74,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Handle authentication (login/register)
   const handleAuth = async (url, data) => {
     try {
       const response = await axios.post(
@@ -86,6 +88,13 @@ export const AuthProvider = ({ children }) => {
         setUserData(user);
         saveTokenToCookie(token);
         saveUserDataToCookie(user);
+
+        // Redirect based on user role
+        if (user.userType === "customer") {
+          navigate("/");
+        } else if (user.userType === "rider") {
+          navigate("/riderScreen");
+        }
       } else {
         console.error("Authentication failed:", response.data.error);
         window.alert("Error: " + response.data.error);
@@ -96,6 +105,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Handle registration
   const handleRegister = async (
     name,
     email,
@@ -114,10 +124,12 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
+  // Handle login
   const handleLogin = async (email, password) => {
     handleAuth("login", { email, password });
   };
 
+  // Handle logout
   const handleLogout = async () => {
     try {
       Cookies.remove("token");
@@ -125,6 +137,7 @@ export const AuthProvider = ({ children }) => {
 
       setToken(null);
       setUserData(null);
+      navigate("/auth");
     } catch (error) {
       console.error("Failed to logout:", error);
     }

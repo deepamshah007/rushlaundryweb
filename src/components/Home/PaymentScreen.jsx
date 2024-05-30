@@ -40,7 +40,7 @@ const PaymentScreen = ({ route }) => {
               service: selectedServices,
               quantity: selectedServices.length,
               totalPrice: totalPrice,
-              rider: null, // Set the rider as null or omit it
+              rider: null, 
             }),
           }
         );

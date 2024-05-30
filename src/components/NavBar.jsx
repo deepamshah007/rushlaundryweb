@@ -15,7 +15,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { AuthContext } from "../contexts/AuthContext";
 
 const NavBar = () => {
-  const { token, handleLogout } = useContext(AuthContext);
+  const { token, userData, handleLogout } = useContext(AuthContext);
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -77,9 +77,11 @@ const NavBar = () => {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={() => handleNavigation("/")}>Home</MenuItem>
-              {token && (
+              {token && userData?.userType === "customer" && (
                 <>
+                  <MenuItem onClick={() => handleNavigation("/")}>
+                    Home
+                  </MenuItem>
                   <MenuItem onClick={() => handleNavigation("/account")}>
                     Account
                   </MenuItem>
@@ -92,19 +94,27 @@ const NavBar = () => {
                   <MenuItem onClick={handleLogout}>Logout</MenuItem>
                 </>
               )}
+              {token && userData?.userType === "rider" && (
+                <>
+                  <MenuItem onClick={() => handleNavigation("/riderScreen")}>
+                    Rider Screen
+                  </MenuItem>
+                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                </>
+              )}
             </Menu>
           </>
         ) : (
           <>
-            <Button
-              color="inherit"
-              onClick={() => handleNavigation("/")}
-              sx={{ fontSize: "1rem", fontWeight: 500 }}
-            >
-              Home
-            </Button>
-            {token && (
+            {token && userData?.userType === "customer" && (
               <>
+                <Button
+                  color="inherit"
+                  onClick={() => handleNavigation("/")}
+                  sx={{ fontSize: "1rem", fontWeight: 500 }}
+                >
+                  Home
+                </Button>
                 <Button
                   color="inherit"
                   onClick={() => handleNavigation("/account")}
@@ -125,6 +135,24 @@ const NavBar = () => {
                   sx={{ fontSize: "1rem", fontWeight: 500 }}
                 >
                   Settings
+                </Button>
+                <Button
+                  color="inherit"
+                  onClick={handleLogout}
+                  sx={{ fontSize: "1rem", fontWeight: 500 }}
+                >
+                  Logout
+                </Button>
+              </>
+            )}
+            {token && userData?.userType === "rider" && (
+              <>
+                <Button
+                  color="inherit"
+                  onClick={() => handleNavigation("/riderScreen")}
+                  sx={{ fontSize: "1rem", fontWeight: 500 }}
+                >
+                  Rider Screen
                 </Button>
                 <Button
                   color="inherit"
