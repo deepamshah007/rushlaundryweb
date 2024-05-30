@@ -43,6 +43,7 @@ function App() {
             path="/auth"
             element={!token ? <Auth /> : <Navigate to="/" />}
           />
+          
           <Route path="/admin" element={<Admin />} />
 
           <Route
