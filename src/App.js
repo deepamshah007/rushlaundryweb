@@ -12,6 +12,7 @@ import CurrentOrders from "./components/Home/CurrentOrders";
 import Admin from "./components/Admin/Admin";
 import Auth from "./components/Account/Auth";
 import Account from "./components/Account/Account";
+import Settings from "./components/Home/Settings";
 import { AuthContext } from "./contexts/AuthContext";
 import NavBar from "./components/NavBar";
 import PrivateRoute from "./components/PrivateRoute";
@@ -33,6 +34,10 @@ function App() {
           <Route
             path="/account"
             element={<PrivateRoute element={<Account />} />}
+          />
+          <Route
+            path="/settings"
+            element={<PrivateRoute element={<Settings />} />}
           />
           <Route
             path="/auth"
