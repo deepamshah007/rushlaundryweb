@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import {
   Box,
   TextField,
@@ -20,6 +20,38 @@ const RiderOrders = () => {
   const [orders, setOrders] = useState([]);
   const [currentOrders, setCurrentOrders] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const fetchOrders = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `https://rush-laundry-0835134be79d.herokuapp.com/api/orders?role=rider`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setOrders(response.data);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    }
+  }, [token]);
+
+  const fetchCurrentOrders = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `https://rush-laundry-0835134be79d.herokuapp.com/api/orders/currentorders?role=rider&id=${userData._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setCurrentOrders(response.data);
+    } catch (error) {
+      console.error("Error fetching current orders:", error);
+    }
+  }, [token, userData._id]);
 
   useEffect(() => {
     const socket = io("https://rush-laundry-0835134be79d.herokuapp.com");
@@ -47,53 +79,24 @@ const RiderOrders = () => {
   useEffect(() => {
     fetchOrders();
     fetchCurrentOrders();
-  }, [token]);
+  }, [fetchOrders, fetchCurrentOrders]);
 
-  const fetchOrders = async () => {
-    try {
-      const response = await axios.get(
-        `https://rush-laundry-0835134be79d.herokuapp.com/api/orders?role=rider`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setOrders(response.data);
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-    }
-  };
+  const handleSearch = useCallback(
+    (event) => {
+      const query = event.target.value;
+      setSearchQuery(query);
 
-  const fetchCurrentOrders = async () => {
-    try {
-      const response = await axios.get(
-        `https://rush-laundry-0835134be79d.herokuapp.com/api/orders/currentorders?role=rider&id=${userData._id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setCurrentOrders(response.data);
-    } catch (error) {
-      console.error("Error fetching current orders:", error);
-    }
-  };
-
-  const handleSearch = (event) => {
-    const query = event.target.value;
-    setSearchQuery(query);
-
-    if (query.trim() === "") {
-      setCurrentOrders(orders);
-    } else {
-      const filteredData = orders.filter((order) =>
-        order.address.toLowerCase().includes(query.toLowerCase())
-      );
-      setCurrentOrders(filteredData);
-    }
-  };
+      if (query.trim() === "") {
+        setCurrentOrders(orders);
+      } else {
+        const filteredData = orders.filter((order) =>
+          order.address.toLowerCase().includes(query.toLowerCase())
+        );
+        setCurrentOrders(filteredData);
+      }
+    },
+    [orders]
+  );
 
   const handleAcceptOrder = async (order) => {
     try {
@@ -119,30 +122,33 @@ const RiderOrders = () => {
     }
   };
 
-  const updateOrderStatus = async (newStatus, orderId) => {
-    try {
-      const response = await axios.put(
-        `https://rush-laundry-0835134be79d.herokuapp.com/api/orders/status/${orderId}`,
-        { status: newStatus },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+  const updateOrderStatus = useCallback(
+    async (newStatus, orderId) => {
+      try {
+        const response = await axios.put(
+          `https://rush-laundry-0835134be79d.herokuapp.com/api/orders/status/${orderId}`,
+          { status: newStatus },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-      if (response.data) {
-        console.log("Order status updated successfully");
-        fetchOrders();
-        fetchCurrentOrders();
-      } else {
-        console.error("Error updating order status", response.status);
+        if (response.data) {
+          console.log("Order status updated successfully");
+          fetchOrders();
+          fetchCurrentOrders();
+        } else {
+          console.error("Error updating order status", response.status);
+        }
+      } catch (error) {
+        console.error("Error updating order status:", error);
       }
-    } catch (error) {
-      console.error("Error updating order status:", error);
-    }
-  };
+    },
+    [token, fetchOrders, fetchCurrentOrders]
+  );
 
   return (
     <Box p={4} bgcolor="#e3f2fd" minHeight="100vh">

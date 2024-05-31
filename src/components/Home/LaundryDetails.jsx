@@ -80,15 +80,6 @@ const LaundryDetails = () => {
   };
 
   const placeOrder = () => {
-    console.log("Place order button clicked"); // Debugging step
-    console.log("Navigating to payment screen with state:", {
-      userData,
-      laundry,
-      selectedServices,
-      token,
-      totalPrice: calculateTotalPrice(),
-    }); // Debugging step
-
     navigate(`/payment/${laundryId}`, {
       state: {
         userData,
@@ -108,7 +99,7 @@ const LaundryDetails = () => {
 
     const hoursToday = laundry.openingHours[dayOfWeek];
 
-    if (!hoursToday) return false;
+    if (!hoursToday) return "Closed";
 
     const [openTime, closeTime] = hoursToday.split(" - ");
 
@@ -119,15 +110,14 @@ const LaundryDetails = () => {
       if (period === "PM" && hour !== 12) hour += 12;
       if (period === "AM" && hour === 12) hour = 0;
 
-      const date = new Date();
-      date.setHours(hour, minute, 0, 0);
-      return date;
+      return `${hour}:${minute}`;
     };
 
     const open = convertTo24Hour(openTime);
     const close = convertTo24Hour(closeTime);
 
-    return now >= open && now <= close;
+    console.log("OPENING HOURS OPEN:", open, "CLOSE", close);
+    return `Open today from ${open} to ${close}`;
   };
 
   if (loading || !laundry) {
