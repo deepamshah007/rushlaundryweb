@@ -6,8 +6,6 @@ import {
   Card,
   CardContent,
   Button,
-  IconButton,
-  CircularProgress,
 } from "@mui/material";
 import { Search as SearchIcon } from "@mui/icons-material";
 import { AuthContext } from "../../contexts/AuthContext";
@@ -28,7 +26,7 @@ const RiderOrders = () => {
 
     const playNotificationSound = async () => {
       try {
-        const audio = new Audio(require("../../assets/sounds/notify.mp3"));
+        const audio = new Audio(require("../../sounds/notify.mp3"));
         await audio.play();
         console.log("SOUND PLAYED");
       } catch (error) {

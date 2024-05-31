@@ -21,7 +21,7 @@ const CustomerOrderDetails = () => {
   const { orderId } = useParams();
 
   const [order, setOrder] = useState(null);
-  const { userData, token } = useContext(AuthContext);
+  const { token } = useContext(AuthContext);
 
   useEffect(() => {
     fetchOrderData();

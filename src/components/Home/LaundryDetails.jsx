@@ -72,7 +72,6 @@ const LaundryDetails = () => {
       const price = laundry.services[service];
 
       if (price) {
-        // Remove the pound sign and parse the price as a float
         totalPrice += parseFloat(price.replace(/[^0-9.-]+/g, ""));
       }
     });
@@ -81,6 +80,15 @@ const LaundryDetails = () => {
   };
 
   const placeOrder = () => {
+    console.log("Place order button clicked"); // Debugging step
+    console.log("Navigating to payment screen with state:", {
+      userData,
+      laundry,
+      selectedServices,
+      token,
+      totalPrice: calculateTotalPrice(),
+    }); // Debugging step
+
     navigate(`/payment/${laundryId}`, {
       state: {
         userData,
@@ -96,13 +104,11 @@ const LaundryDetails = () => {
     const now = new Date();
     const dayOfWeek = now
       .toLocaleString("en-US", { weekday: "long" })
-      .toLowerCase()
-      .split(" ")[0]
-      .split(",")[0];
+      .toLowerCase();
 
     const hoursToday = laundry.openingHours[dayOfWeek];
 
-    if (!hoursToday) return false; // Closed today
+    if (!hoursToday) return false;
 
     const [openTime, closeTime] = hoursToday.split(" - ");
 
@@ -110,13 +116,8 @@ const LaundryDetails = () => {
       const [hourMin, period] = time.split(" ");
       let [hour, minute] = hourMin.split(":").map(Number);
 
-      // Convert to 24-hour format
-      if (period === "PM" && hour !== 12) {
-        hour += 12;
-      }
-      if (period === "AM" && hour === 12) {
-        hour = 0;
-      }
+      if (period === "PM" && hour !== 12) hour += 12;
+      if (period === "AM" && hour === 12) hour = 0;
 
       const date = new Date();
       date.setHours(hour, minute, 0, 0);
@@ -189,9 +190,7 @@ const LaundryDetails = () => {
         onClose={() => setModalVisible(false)}
         closeAfterTransition
         BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500,
-        }}
+        BackdropProps={{ timeout: 500 }}
         style={{
           display: "flex",
           alignItems: "center",
@@ -293,7 +292,7 @@ const LaundryDetails = () => {
 
       <ActionButton
         title="Place Order"
-        onPress={placeOrder}
+        onClick={placeOrder}
         disabled={selectedServices.length === 0}
         style={{ width: "100%", borderRadius: "8px" }}
       />

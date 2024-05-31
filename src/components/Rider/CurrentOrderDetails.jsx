@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -22,7 +22,6 @@ const CurrentOrderDetail = () => {
   const { token } = useContext(AuthContext);
 
   const [isLaundryReceived, setIsLaundryReceived] = useState(false);
-  const [isLaundryDelivered, setIsLaundryDelivered] = useState(false);
   const [qrCodeData, setQrCodeData] = useState(null);
   const [order, setOrder] = useState(null);
   const [riderLocation, setRiderLocation] = useState({
@@ -31,11 +30,16 @@ const CurrentOrderDetail = () => {
   });
   const [showCamera, setShowCamera] = useState(false);
 
-  useEffect(() => {
-    fetchOrderData();
-  }, [orderId, token]);
+  // ! REMOVE THIS BIT LATER
+  setRiderLocation({
+    lat: 52.4862,
+    lng: -1.8904,
+  });
+  console.log(isLaundryReceived);
+  console.log(qrCodeData);
+  // ! REMOVE THIS BIT LATER
 
-  const fetchOrderData = async () => {
+  const fetchOrderData = useCallback(async () => {
     try {
       const response = await axios.get(
         `https://rush-laundry-0835134be79d.herokuapp.com/api/orders/details/${orderId}`,
@@ -54,41 +58,55 @@ const CurrentOrderDetail = () => {
     } catch (error) {
       console.error("Error fetching order data:", error);
     }
-  };
+  }, [orderId, token]);
 
-  const updateOrderStatus = async (newStatus) => {
-    try {
-      const response = await axios.put(
-        `https://rush-laundry-0835134be79d.herokuapp.com/api/orders/status/${orderId}`,
-        { status: newStatus },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+  const updateOrderStatus = useCallback(
+    async (newStatus) => {
+      try {
+        const response = await axios.put(
+          `https://rush-laundry-0835134be79d.herokuapp.com/api/orders/status/${orderId}`,
+          { status: newStatus },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          fetchOrderData();
+        } else {
+          throw new Error("Failed to update order status");
         }
-      );
-
-      if (response.status === 200) {
-        fetchOrderData();
-      } else {
-        throw new Error("Failed to update order status");
+      } catch (error) {
+        console.error("Error updating order status:", error);
       }
-    } catch (error) {
-      console.error("Error updating order status:", error);
-    }
-  };
+    },
+    [fetchOrderData, orderId, token]
+  );
 
-  const handleScan = (data) => {
-    if (data) {
-      setQrCodeData(data);
-      if (data === order._id) {
-        setIsLaundryReceived(true);
-        updateOrderStatus("Received by Rider");
-        setShowCamera(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      await fetchOrderData();
+    };
+
+    fetchData();
+  }, [fetchOrderData]);
+
+  const handleScan = useCallback(
+    (data) => {
+      if (data) {
+        setQrCodeData(data);
+        if (data === order._id) {
+          setIsLaundryReceived(true);
+          updateOrderStatus("Received by Rider");
+          setShowCamera(false);
+        }
       }
-    }
-  };
+    },
+    [order._id, updateOrderStatus]
+  );
 
   const handleError = (err) => {
     console.error(err);

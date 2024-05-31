@@ -14,6 +14,7 @@ import LaundryDetails from "./components/Home/LaundryDetails";
 import RiderScreen from "./components/Rider/RiderScreen";
 import CurrentOrderDetails from "./components/Rider/CurrentOrderDetails";
 import AuthProviderWrapper from "./contexts/AuthProviderWrapper";
+import PaymentScreen from "./components/Home/PaymentScreen"; // Import PaymentScreen
 
 function App() {
   return (
@@ -48,6 +49,10 @@ function App() {
             <Route
               path="/orders/:orderId"
               element={<PrivateRoute element={<CurrentOrderDetails />} />}
+            />
+            <Route
+              path="/payment/:laundryId"
+              element={<PrivateRoute element={<PaymentScreen />} />}
             />
           </Routes>
         </AuthProviderWrapper>
