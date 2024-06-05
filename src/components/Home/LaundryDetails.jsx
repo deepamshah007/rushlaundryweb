@@ -80,13 +80,15 @@ const LaundryDetails = () => {
   };
 
   const placeOrder = () => {
+    const totalPrice = calculateTotalPrice();
+
     navigate(`/payment/${laundryId}`, {
       state: {
         userData,
         laundry,
         selectedServices,
         token,
-        totalPrice: calculateTotalPrice(),
+        totalPrice: parseFloat(totalPrice), // Convert to number
       },
     });
   };
@@ -116,7 +118,6 @@ const LaundryDetails = () => {
     const open = convertTo24Hour(openTime);
     const close = convertTo24Hour(closeTime);
 
-    console.log("OPENING HOURS OPEN:", open, "CLOSE", close);
     return `Open today from ${open} to ${close}`;
   };
 

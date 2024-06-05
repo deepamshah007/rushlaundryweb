@@ -117,17 +117,17 @@ const NavBar = () => {
                 </Button>
                 <Button
                   color="inherit"
-                  onClick={() => handleNavigation("/account")}
-                  sx={{ fontSize: "1rem", fontWeight: 500 }}
-                >
-                  Account
-                </Button>
-                <Button
-                  color="inherit"
                   onClick={() => handleNavigation("/orders")}
                   sx={{ fontSize: "1rem", fontWeight: 500 }}
                 >
                   Current Orders
+                </Button>
+                <Button
+                  color="inherit"
+                  onClick={() => handleNavigation("/account")}
+                  sx={{ fontSize: "1rem", fontWeight: 500 }}
+                >
+                  Account
                 </Button>
                 <Button
                   color="inherit"

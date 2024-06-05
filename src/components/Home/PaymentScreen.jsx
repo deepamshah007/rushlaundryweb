@@ -1,78 +1,196 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
-import { Container, Typography } from "@mui/material";
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+  Container,
+  Typography,
+  CircularProgress,
+  Grid,
+  Paper,
+} from "@mui/material";
+import { loadStripe } from "@stripe/stripe-js";
+import {
+  Elements,
+  CardElement,
+  useStripe,
+  useElements,
+} from "@stripe/react-stripe-js";
 
-const PaymentScreen = () => {
-  const location = useLocation();
-  const { selectedServices, totalPrice } = location.state || {};
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISH_KEY);
 
-  const handleApprove = async (data, actions) => {
-    try {
-      const response = await fetch(`/api/orders/${data.orderID}/capture`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+const CheckoutForm = ({ clientSecret, handleOrder }) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (!stripe || !elements) {
+      return;
+    }
+
+    const cardElement = elements.getElement(CardElement);
+    const { error, paymentIntent } = await stripe.confirmCardPayment(
+      clientSecret,
+      {
+        payment_method: {
+          card: cardElement,
         },
-      });
+      }
+    );
 
-      const orderData = await response.json();
-      console.log("Order captured: ", orderData);
-      // Navigate to a confirmation page or show a success message
-    } catch (error) {
-      console.error("Error capturing order: ", error);
+    if (error) {
+      setError(error.message);
+      setSuccess(false);
+    } else {
+      setError(null);
+      setSuccess(true);
+      await handleOrder(paymentIntent.id);
+      navigate("/");
     }
   };
 
   return (
-    <Container
-      style={{
-        paddingTop: "2rem",
-        paddingBottom: "2rem",
-        backgroundColor: "#f0f0f0",
-        minHeight: "100vh",
-      }}
-    >
-      <Typography variant="h4" style={{ marginBottom: "2rem" }}>
-        Payment
-      </Typography>
+    <form onSubmit={handleSubmit}>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <CardElement options={{ style: { base: { fontSize: "18px" } } }} />
+        </Grid>
+        <Grid item xs={12}>
+          <button
+            type="submit"
+            className="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary"
+            disabled={!stripe}
+            style={{ width: "100%" }}
+          >
+            Confirm Payment
+          </button>
+        </Grid>
+        <Grid item xs={12}>
+          {error && (
+            <Typography variant="body1" color="error" gutterBottom>
+              {error}
+            </Typography>
+          )}
+          {success && (
+            <Typography variant="body1" color="success" gutterBottom>
+              Payment successful!
+            </Typography>
+          )}
+        </Grid>
+      </Grid>
+    </form>
+  );
+};
 
-      <Typography variant="h6" style={{ marginBottom: "1rem" }}>
-        Total Price: £{totalPrice}
-      </Typography>
+const PaymentScreen = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { selectedServices, laundry, token, totalPrice } = location.state || {};
+  const [clientSecret, setClientSecret] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-      <PayPalScriptProvider
-        options={{
-          "client-id": "YOUR_PAYPAL_CLIENT_ID",
-        }}
-      >
-        <PayPalButtons
-          style={{ layout: "vertical", color: "gold", label: "paypal" }}
-          createOrder={async (data, actions) => {
-            try {
-              const response = await fetch("/api/orders", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  cart: selectedServices.map((service) => ({
-                    id: service,
-                    quantity: 1,
-                  })),
-                  currency: "USD", // Specify the currency
-                }),
-              });
+  useEffect(() => {
+    const fetchClientSecret = async () => {
+      try {
+        const response = await fetch(
+          "https://rush-laundry-0835134be79d.herokuapp.com/api/orders",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              totalPrice: totalPrice,
+              service: selectedServices,
+              quantity: selectedServices.length,
+              laundry: laundry,
+            }),
+          }
+        );
 
-              const orderData = await response.json();
-              return orderData.id;
-            } catch (error) {
-              console.error("Error creating order: ", error);
-            }
-          }}
-          onApprove={(data, actions) => handleApprove(data, actions)}
-        />
-      </PayPalScriptProvider>
+        if (!response.ok) {
+          throw new Error("Failed to create payment intent");
+        }
+
+        const data = await response.json();
+        setClientSecret(data.clientSecret);
+      } catch (error) {
+        console.error("Error creating payment intent:", error);
+        setError("Failed to initialize payment. Please try again.");
+      }
+    };
+
+    fetchClientSecret();
+  }, [totalPrice, token, selectedServices, laundry]);
+
+  const placeOrder = async (paymentIntentId) => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        "https://rush-laundry-0835134be79d.herokuapp.com/api/orders",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            laundry,
+            service: selectedServices,
+            quantity: selectedServices.length,
+            totalPrice: totalPrice,
+            paymentIntentId: paymentIntentId,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        console.log("Order placed successfully");
+      } else if (response.status === 401) {
+        console.log("User not logged in");
+        navigate("/account");
+      } else {
+        console.error("Error placing order", response.status);
+        setError(`Error placing order: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Error placing order:", error);
+      setError(`Error placing order: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Container maxWidth="sm" style={{ marginTop: "2rem" }}>
+      <Paper elevation={3} style={{ padding: "2rem" }}>
+        <Typography variant="h5" gutterBottom>
+          Payment
+        </Typography>
+        {error && (
+          <Typography variant="body1" color="error" gutterBottom>
+            {error}
+          </Typography>
+        )}
+        {clientSecret && !error && (
+          <>
+            <Typography variant="subtitle1" gutterBottom>
+              Total Price: £{totalPrice.toFixed(2)}
+            </Typography>
+            {loading && <CircularProgress style={{ marginBottom: "1rem" }} />}
+            <Elements stripe={stripePromise} options={{ clientSecret }}>
+              <CheckoutForm
+                clientSecret={clientSecret}
+                handleOrder={placeOrder}
+              />
+            </Elements>
+          </>
+        )}
+      </Paper>
     </Container>
   );
 };
