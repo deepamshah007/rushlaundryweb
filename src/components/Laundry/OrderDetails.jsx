@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import {
   Container,
   Typography,
@@ -8,23 +7,19 @@ import {
   CardContent,
   Checkbox,
   FormControlLabel,
-  Button,
   IconButton,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useNavigate, useParams } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
 
 const OrderDetails = () => {
   const navigate = useNavigate();
   const { orderId } = useParams();
   const [order, setOrder] = useState(null);
-  const { userData, token } = useContext(AuthContext);
+  const { token } = useContext(AuthContext);
 
-  useEffect(() => {
-    fetchOrderData();
-  }, [orderId, token]);
-
-  const fetchOrderData = async () => {
+  const fetchOrderData = useCallback(async () => {
     try {
       const response = await fetch(
         `https://rush-laundry-0835134be79d.herokuapp.com/api/orders/details/${orderId}`,
@@ -44,7 +39,11 @@ const OrderDetails = () => {
     } catch (error) {
       console.log("Error fetching order data:", error);
     }
-  };
+  }, [orderId, token]);
+
+  useEffect(() => {
+    fetchOrderData();
+  }, [fetchOrderData]);
 
   const updateOrderStatus = async (newStatus) => {
     try {
@@ -63,7 +62,7 @@ const OrderDetails = () => {
       );
 
       if (response.ok) {
-        setOrder({ ...order, status: newStatus });
+        setOrder((prevOrder) => ({ ...prevOrder, status: newStatus }));
         console.log("Order status updated successfully");
       } else {
         console.log("Error updating order status", response.status);

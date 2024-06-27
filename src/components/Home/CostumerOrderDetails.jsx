@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import {
-  Button,
   Container,
   Typography,
   Card,
   CardContent,
   CircularProgress,
   IconButton,
-  Grid,
   Checkbox,
   FormControlLabel,
 } from "@mui/material";
@@ -23,11 +21,7 @@ const CustomerOrderDetails = () => {
   const [order, setOrder] = useState(null);
   const { token } = useContext(AuthContext);
 
-  useEffect(() => {
-    fetchOrderData();
-  }, [orderId, token]);
-
-  const fetchOrderData = async () => {
+  const fetchOrderData = useCallback(async () => {
     try {
       const response = await fetch(
         `https://rush-laundry-0835134be79d.herokuapp.com/api/orders/details/${orderId}`,
@@ -47,7 +41,11 @@ const CustomerOrderDetails = () => {
     } catch (error) {
       console.log("Error fetching order data:", error);
     }
-  };
+  }, [orderId, token]);
+
+  useEffect(() => {
+    fetchOrderData();
+  }, [fetchOrderData]);
 
   const updateOrderStatus = async (newStatus) => {
     try {
@@ -66,7 +64,7 @@ const CustomerOrderDetails = () => {
       );
 
       if (response.ok) {
-        setOrder({ ...order, status: newStatus });
+        setOrder((prevOrder) => ({ ...prevOrder, status: newStatus }));
         console.log("Order status updated successfully");
       } else {
         console.log("Error updating order status", response.status);

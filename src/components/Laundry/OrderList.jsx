@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import {
   Container,
   TextField,
@@ -6,21 +6,54 @@ import {
   Typography,
   Card,
   CardContent,
-  CircularProgress,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { AuthContext } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
-import OrdersCard from "../OrdersCard";
 import NextCard from "../NextCard";
 
 const OrderList = () => {
   const navigate = useNavigate();
-  const { token, userData, laundryData } = useContext(AuthContext);
+  const { token, laundryData } = useContext(AuthContext);
   const [orders, setOrders] = useState([]);
   const [newOrders, setNewOrders] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const fetchOrders = useCallback(async () => {
+    if (!laundryData || !laundryData._id) {
+      console.error("Laundry data or id is not set");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://rush-laundry-0835134be79d.herokuapp.com/api/orders/laundry/${laundryData._id}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const ordersData = await response.json();
+      const newOrders = ordersData.filter((order) => order.status === "Paid");
+      const filteredOrders = ordersData.filter(
+        (order) =>
+          order.status !== "Paid" &&
+          order.status !== "Delivery Confirmed by Customer"
+      );
+      setNewOrders(newOrders);
+      setOrders(filteredOrders);
+    } catch (error) {
+      console.error("Failed to fetch orders:", error);
+    }
+  }, [laundryData, token]);
 
   useEffect(() => {
     const socket = io("https://rush-laundry-0835134be79d.herokuapp.com");
@@ -47,51 +80,22 @@ const OrderList = () => {
     if (laundryData && laundryData._id) {
       fetchOrders();
     }
-  }, [laundryData]);
+  }, [laundryData, fetchOrders]);
 
-  const fetchOrders = async () => {
-    if (!laundryData || !laundryData._id) {
-      console.error("Laundry data or id is not set");
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        `https://rush-laundry-0835134be79d.herokuapp.com/api/orders/laundry/${laundryData._id}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+  const handleSearch = useCallback(
+    (query) => {
+      setSearchQuery(query);
+      if (query) {
+        const filteredOrders = orders.filter((order) =>
+          order._id.includes(query)
+        );
+        setOrders(filteredOrders);
+      } else {
+        fetchOrders(); // re-fetch all orders when search query is cleared
       }
-
-      const ordersData = await response.json();
-      const newOrders = ordersData.filter((order) => order.status === "Paid");
-      const orders = ordersData.filter(
-        (order) =>
-          order.status !== "Paid" &&
-          order.status !== "Delivery Confirmed by Customer"
-      );
-      setNewOrders(newOrders);
-      setOrders(orders);
-    } catch (error) {
-      console.error("Failed to fetch orders:", error);
-    }
-  };
-
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-    if (query) {
-      setOrders(orders.filter((order) => order._id.includes(query)));
-    } else {
-      fetchOrders(); // re-fetch all orders when search query is cleared
-    }
-  };
+    },
+    [orders, fetchOrders]
+  );
 
   const handleAcceptOrder = async (orderId) => {
     try {
