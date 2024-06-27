@@ -4,7 +4,7 @@ import StarIcon from "@mui/icons-material/Star";
 import StarHalfIcon from "@mui/icons-material/StarHalf";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 
-const StarRating = ({ rating }) => {
+const StarRating = ({ rating = 0 }) => {
   const renderStars = () => {
     const stars = [];
     const fullStars = Math.floor(rating);
@@ -27,6 +27,17 @@ const StarRating = ({ rating }) => {
         <StarBorderIcon key={`empty-${i}`} sx={{ color: "#FFC107" }} />
       );
     }
+
+    // Ensure there are always 5 stars
+    while (stars.length < 5) {
+      stars.push(
+        <StarBorderIcon
+          key={`empty-${stars.length}`}
+          sx={{ color: "#FFC107" }}
+        />
+      );
+    }
+
     return stars;
   };
 

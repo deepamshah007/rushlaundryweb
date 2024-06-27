@@ -11,6 +11,8 @@ import Settings from "./components/Home/Settings";
 import NavBar from "./components/NavBar";
 import PrivateRoute from "./components/PrivateRoute";
 import LaundryDetails from "./components/Home/LaundryDetails";
+import LaundryList from "./components/Laundry/OrderList";
+import LaundryOrders from "./components/Laundry/OrderDetails";
 import RiderScreen from "./components/Rider/RiderScreen";
 import CurrentOrderDetails from "./components/Rider/CurrentOrderDetails";
 import AuthProviderWrapper from "./contexts/AuthProviderWrapper";
@@ -39,9 +41,19 @@ function App() {
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<Admin />} />
             <Route
+              path="/laundry"
+              element={<PrivateRoute element={<LaundryList />} />}
+            />{" "}
+            {/* New route */}
+            <Route
               path="/laundry/:laundryId"
               element={<PrivateRoute element={<LaundryDetails />} />}
             />
+            <Route
+              path="/laundry/:laundryId/orders"
+              element={<PrivateRoute element={<LaundryOrders />} />}
+            />{" "}
+            {/* New route */}
             <Route
               path="/riderScreen"
               element={<PrivateRoute element={<RiderScreen />} />}
