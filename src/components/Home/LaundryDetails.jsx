@@ -225,7 +225,8 @@ const LaundryDetails = () => {
                 variant="body1"
                 style={{ marginBottom: "0.5rem" }}
               >
-                {day.charAt(0).toUpperCase() + day.slice(1)}: {hours}
+                {day.charAt(0).toUpperCase() + day.slice(1)}:{" "}
+                {hours.openingTime} - {hours.closingTime}
               </Typography>
             ))}
           </div>
@@ -278,7 +279,7 @@ const LaundryDetails = () => {
       </Typography>
 
       <Typography variant="body1" style={{ marginBottom: "1rem" }}>
-        {isOpen() ? "Open Now" : "Closed Now"}
+        {isOpen()}
       </Typography>
 
       <ActionButton
