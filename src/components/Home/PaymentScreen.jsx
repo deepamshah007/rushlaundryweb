@@ -15,7 +15,10 @@ import {
   useElements,
 } from "@stripe/react-stripe-js";
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISH_KEY);
+// const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISH_KEY);
+const stripePromise = loadStripe(
+  "pk_test_51O8jwZAlyEzuyHdXpgRudPjkZOtfpIIpKkmWNCHz7Xxd1KMvYPmLtFODTbqKCyXdhcT1q6zXsGO3CWO7tPBXu4cz00udGdZ2JG"
+);
 
 const CheckoutForm = ({ clientSecret, handleOrder }) => {
   const stripe = useStripe();
