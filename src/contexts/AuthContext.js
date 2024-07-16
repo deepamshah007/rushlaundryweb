@@ -101,7 +101,11 @@ export const AuthProvider = ({ children, navigate }) => {
       }
     } catch (error) {
       console.error("Failed to authenticate:", error);
-      window.alert("Error: Failed to connect to the server");
+      if (error.response && error.response.data && error.response.data.error) {
+        window.alert("Error: " + error.response.data.error);
+      } else {
+        window.alert("Error: Failed to connect to the server");
+      }
     }
   };
 
