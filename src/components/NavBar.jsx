@@ -41,6 +41,11 @@ const NavBar = () => {
       sx={{ backgroundColor: "#0a1f44", padding: "0.5rem 2rem" }}
     >
       <Toolbar>
+        <img
+          src="/company_logo.png"
+          alt="Company Logo"
+          style={{ height: "40px", marginRight: "0.5rem" }}
+        />
         <Typography
           variant="h6"
           sx={{
@@ -102,6 +107,27 @@ const NavBar = () => {
                   <MenuItem onClick={handleLogout}>Logout</MenuItem>
                 </>
               )}
+              {token && userData?.userType === "laundry" && (
+                <>
+                  <MenuItem
+                    onClick={() => handleNavigation("/laundryDashboard")}
+                  >
+                    Dashboard
+                  </MenuItem>
+                  <MenuItem onClick={() => handleNavigation("/laundryOrders")}>
+                    Orders
+                  </MenuItem>
+                  <MenuItem onClick={() => handleNavigation("/laundryAccount")}>
+                    Account
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => handleNavigation("/laundrySettings")}
+                  >
+                    Settings
+                  </MenuItem>
+                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                </>
+              )}
             </Menu>
           </>
         ) : (
@@ -153,6 +179,45 @@ const NavBar = () => {
                   sx={{ fontSize: "1rem", fontWeight: 500 }}
                 >
                   Rider Screen
+                </Button>
+                <Button
+                  color="inherit"
+                  onClick={handleLogout}
+                  sx={{ fontSize: "1rem", fontWeight: 500 }}
+                >
+                  Logout
+                </Button>
+              </>
+            )}
+            {token && userData?.userType === "laundry" && (
+              <>
+                <Button
+                  color="inherit"
+                  onClick={() => handleNavigation("/laundry")}
+                  sx={{ fontSize: "1rem", fontWeight: 500 }}
+                >
+                  Dashboard
+                </Button>
+                <Button
+                  color="inherit"
+                  onClick={() => handleNavigation("/laundryOrders")}
+                  sx={{ fontSize: "1rem", fontWeight: 500 }}
+                >
+                  Orders
+                </Button>
+                <Button
+                  color="inherit"
+                  onClick={() => handleNavigation("/Account")}
+                  sx={{ fontSize: "1rem", fontWeight: 500 }}
+                >
+                  Account
+                </Button>
+                <Button
+                  color="inherit"
+                  onClick={() => handleNavigation("/Settings")}
+                  sx={{ fontSize: "1rem", fontWeight: 500 }}
+                >
+                  Settings
                 </Button>
                 <Button
                   color="inherit"

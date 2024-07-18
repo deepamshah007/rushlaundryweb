@@ -7,6 +7,8 @@ import {
   Modal,
   IconButton,
   Paper,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate, useParams } from "react-router-dom";
@@ -15,6 +17,8 @@ import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import QrScanner from "react-qr-scanner";
 import axios from "axios";
+import L from "leaflet";
+import markerIcon from "../../assets/images/335079-200.png"; // Adjust the path accordingly
 
 const CurrentOrderDetail = () => {
   const navigate = useNavigate();
@@ -24,20 +28,31 @@ const CurrentOrderDetail = () => {
   const [isLaundryReceived, setIsLaundryReceived] = useState(false);
   const [qrCodeData, setQrCodeData] = useState(null);
   const [order, setOrder] = useState(null);
-  const [riderLocation, setRiderLocation] = useState({
-    lat: 52.4862,
-    lng: -1.8904,
-  });
+  const [riderLocation, setRiderLocation] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
+  const [isDeliveredToLaundry, setIsDeliveredToLaundry] = useState(false);
 
-  // ! REMOVE THIS BIT LATER
-  setRiderLocation({
-    lat: 52.4862,
-    lng: -1.8904,
-  });
-  console.log(isLaundryReceived);
-  console.log(qrCodeData);
-  // ! REMOVE THIS BIT LATER
+  useEffect(() => {
+    const getCurrentLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setRiderLocation({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            });
+          },
+          (error) => {
+            console.error("Error getting current location:", error);
+          }
+        );
+      } else {
+        console.error("Geolocation is not supported by this browser.");
+      }
+    };
+
+    getCurrentLocation();
+  }, []);
 
   const fetchOrderData = useCallback(async () => {
     try {
@@ -96,7 +111,7 @@ const CurrentOrderDetail = () => {
 
   const handleScan = useCallback(
     (data) => {
-      if (data) {
+      if (data && order) {
         setQrCodeData(data);
         if (data === order._id) {
           setIsLaundryReceived(true);
@@ -105,11 +120,19 @@ const CurrentOrderDetail = () => {
         }
       }
     },
-    [order._id, updateOrderStatus]
+    [order, updateOrderStatus]
   );
 
   const handleError = (err) => {
     console.error(err);
+  };
+
+  const handleDeliveredToLaundryChange = async (event) => {
+    const isChecked = event.target.checked;
+    setIsDeliveredToLaundry(isChecked);
+    if (isChecked) {
+      await updateOrderStatus("Delivered to Laundry");
+    }
   };
 
   if (!order) {
@@ -132,18 +155,31 @@ const CurrentOrderDetail = () => {
       </IconButton>
 
       <Box mb={4}>
-        <MapContainer
-          style={{ height: "400px", width: "100%" }}
-          center={[riderLocation.lat, riderLocation.lng]}
-          zoom={13}
-          scrollWheelZoom={false}
-        >
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          />
-          <Marker position={[riderLocation.lat, riderLocation.lng]} />
-        </MapContainer>
+        {riderLocation ? (
+          <MapContainer
+            style={{ height: "400px", width: "100%" }}
+            center={[riderLocation.lat, riderLocation.lng]}
+            zoom={13}
+            scrollWheelZoom={false}
+          >
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
+            <Marker
+              position={[riderLocation.lat, riderLocation.lng]}
+              icon={
+                new L.Icon({
+                  iconUrl: markerIcon,
+                  iconSize: [25, 41],
+                  iconAnchor: [12, 41],
+                })
+              }
+            />
+          </MapContainer>
+        ) : (
+          <Typography>Loading map...</Typography>
+        )}
       </Box>
 
       {order.status === "Accepted by Laundry" && (
@@ -185,6 +221,17 @@ const CurrentOrderDetail = () => {
         <Typography>
           Expected Time: {new Date(order.expectedReceiveTime).toLocaleString()}
         </Typography>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={isDeliveredToLaundry}
+              onChange={handleDeliveredToLaundryChange}
+              color="primary"
+              disabled={isDeliveredToLaundry}
+            />
+          }
+          label="Delivered to Laundry"
+        />
       </Paper>
     </Box>
   );

@@ -16,7 +16,8 @@ import LaundryOrders from "./components/Laundry/OrderDetails";
 import RiderScreen from "./components/Rider/RiderScreen";
 import CurrentOrderDetails from "./components/Rider/CurrentOrderDetails";
 import AuthProviderWrapper from "./contexts/AuthProviderWrapper";
-import PaymentScreen from "./components/Home/PaymentScreen"; // Import PaymentScreen
+import PaymentScreen from "./components/Home/PaymentScreen";
+import LaundryView from "./components/Laundry/LaundryView"; // Import LaundryView
 
 function App() {
   return (
@@ -41,10 +42,10 @@ function App() {
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<Admin />} />
             <Route
-              path="/laundry"
-              element={<PrivateRoute element={<LaundryList />} />}
+              path="/laundry/*"
+              element={<PrivateRoute element={<LaundryView />} />}
             />{" "}
-            {/* New route */}
+            {/* Updated route */}
             <Route
               path="/laundry/:laundryId"
               element={<PrivateRoute element={<LaundryDetails />} />}
@@ -52,8 +53,7 @@ function App() {
             <Route
               path="/laundry/:laundryId/orders"
               element={<PrivateRoute element={<LaundryOrders />} />}
-            />{" "}
-            {/* New route */}
+            />
             <Route
               path="/riderScreen"
               element={<PrivateRoute element={<RiderScreen />} />}

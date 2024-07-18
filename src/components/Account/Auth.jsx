@@ -42,6 +42,8 @@ const Auth = () => {
         navigate("/");
       } else if (userData.userType === "rider") {
         navigate("/riderScreen");
+      } else if (userData.userType === "laundry") {
+        navigate("/laundry");
       }
     }
   }, [token, userData, navigate]);

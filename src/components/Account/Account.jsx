@@ -11,14 +11,14 @@ import { AuthContext } from "../../contexts/AuthContext";
 
 const Account = () => {
   const [orderHistory, setOrderHistory] = useState(null);
-  const { handleLogout, token, userData, laundryId, laundryData } =
+  const { handleLogout, token, userData, laundryData } =
     useContext(AuthContext);
 
   useEffect(() => {
     const fetchOrderHistory = async () => {
       try {
         const response = await fetch(
-          `https://rush-laundry-0835134be79d.herokuapp.com/api/orders/deliveredOrders/${userData._id}?userType=${userData.userType}&laundryId=${laundryId}`,
+          `https://rush-laundry-0835134be79d.herokuapp.com/api/orders/deliveredOrders/${userData._id}?userType=${userData.userType}&laundryId=${userData.laundryId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -35,7 +35,7 @@ const Account = () => {
     if (userData && token) {
       fetchOrderHistory();
     }
-  }, [userData, token, laundryId]);
+  }, [userData, token]);
 
   if (!userData) {
     return (
@@ -81,16 +81,16 @@ const Account = () => {
             <Typography variant="body1" style={{ marginBottom: "0.5rem" }}>
               Email: {userData.email}
             </Typography>
-            {laundryData && (
+            {userData.userType === "laundry" && (
               <Typography variant="body1" style={{ marginBottom: "0.5rem" }}>
-                Laundry: {laundryData.name}
+                Laundry: {userData.laundryId}
               </Typography>
             )}
             <Typography variant="body1" style={{ marginBottom: "0.5rem" }}>
-              Address: {userData.mailingAddress}
+              Address: {userData.mailingAddress || "N/A"}
             </Typography>
             <Typography variant="body1" style={{ marginBottom: "0.5rem" }}>
-              Phone: {userData.phoneNumber}
+              Phone: {userData.phoneNumber || "N/A"}
             </Typography>
           </Paper>
         </Grid>
@@ -128,7 +128,7 @@ const Account = () => {
                     variant="body1"
                     style={{ marginBottom: "0.5rem" }}
                   >
-                    Date: {order.date}
+                    Date: {new Date(order.date).toLocaleDateString()}
                   </Typography>
                   <Typography
                     variant="body1"

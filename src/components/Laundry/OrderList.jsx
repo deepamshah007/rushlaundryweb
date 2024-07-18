@@ -6,6 +6,7 @@ import {
   Typography,
   Card,
   CardContent,
+  Button,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { AuthContext } from "../../contexts/AuthContext";
@@ -66,9 +67,11 @@ const OrderList = () => {
       new Audio("/sounds/notify.mp3").play();
 
       // Display browser notification
-      new Notification("New Order!", {
-        body: "You have received a new order. Check it out!",
-      });
+      if (Notification.permission === "granted") {
+        new Notification("New Order!", {
+          body: "You have received a new order. Check it out!",
+        });
+      }
     });
 
     return () => {
@@ -178,13 +181,14 @@ const OrderList = () => {
                 {new Date(order.date).toLocaleString()}
               </Typography>
               <Typography variant="body1">Status: {order.status}</Typography>
-              <IconButton
+              <Button
+                variant="contained"
                 onClick={() => {
                   navigate(`/order-details/${order._id}`);
                 }}
               >
-                <SearchIcon />
-              </IconButton>
+                View Details
+              </Button>
             </CardContent>
           </Card>
         ))
