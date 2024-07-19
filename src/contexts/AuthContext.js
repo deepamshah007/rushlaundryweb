@@ -7,14 +7,15 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children, navigate }) => {
   const [token, setToken] = useState(null);
   const [userData, setUserData] = useState(null);
+  const [laundryData, setLaundryData] = useState(null);
 
-  // Fetch user data from API
-  const fetchUserData = useCallback(async (userId, token) => {
-    if (!userId || !token) return;
+  // Fetch laundry data from API
+  const fetchLaundryData = useCallback(async (laundryId, token) => {
+    if (!laundryId || !token) return;
 
     try {
       const response = await axios.get(
-        `https://rush-laundry-0835134be79d.herokuapp.com/api/users/${userId}`,
+        `https://rush-laundry-0835134be79d.herokuapp.com/api/laundry/${laundryId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -23,15 +24,49 @@ export const AuthProvider = ({ children, navigate }) => {
       );
 
       if (!response.data) {
-        throw new Error("User data not found");
+        throw new Error("Laundry data not found");
       }
 
-      setUserData(response.data);
-      saveUserDataToCookie(response.data);
+      setLaundryData(response.data);
     } catch (error) {
-      console.error("Failed to fetch user data:", error);
+      console.error("Failed to fetch laundry data:", error.response || error);
+      console.error(`Error details: ${JSON.stringify(error.response.data)}`);
     }
   }, []);
+
+  // Fetch user data from API
+  const fetchUserData = useCallback(
+    async (userId, token) => {
+      if (!userId || !token) return;
+
+      try {
+        const response = await axios.get(
+          `https://rush-laundry-0835134be79d.herokuapp.com/api/users/${userId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (!response.data) {
+          throw new Error("User data not found");
+        }
+
+        setUserData(response.data);
+        saveUserDataToCookie(response.data);
+
+        // Fetch laundry data if user type is laundry
+        if (response.data.userType === "laundry" && response.data.laundryId) {
+          fetchLaundryData(response.data.laundryId, token);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user data:", error.response || error);
+        console.error(`Error details: ${JSON.stringify(error.response.data)}`);
+      }
+    },
+    [fetchLaundryData]
+  );
 
   // Load token and user data from cookies
   const loadTokenAndUserData = useCallback(async () => {
@@ -94,13 +129,16 @@ export const AuthProvider = ({ children, navigate }) => {
           navigate("/");
         } else if (user.userType === "rider") {
           navigate("/riderScreen");
+        } else if (user.userType === "laundry") {
+          fetchLaundryData(user.laundryId, token);
         }
       } else {
         console.error("Authentication failed:", response.data.error);
         window.alert("Error: " + response.data.error);
       }
     } catch (error) {
-      console.error("Failed to authenticate:", error);
+      console.error("Failed to authenticate:", error.response || error);
+      console.error(`Error details: ${JSON.stringify(error.response.data)}`);
       if (error.response && error.response.data && error.response.data.error) {
         window.alert("Error: " + error.response.data.error);
       } else {
@@ -141,6 +179,7 @@ export const AuthProvider = ({ children, navigate }) => {
 
       setToken(null);
       setUserData(null);
+      setLaundryData(null);
       navigate("/auth");
     } catch (error) {
       console.error("Failed to logout:", error);
@@ -155,6 +194,7 @@ export const AuthProvider = ({ children, navigate }) => {
         handleLogout,
         token,
         userData,
+        laundryData,
       }}
     >
       {children}

@@ -7,7 +7,7 @@ const LaundryView = () => {
   return (
     <Routes>
       <Route path="/" element={<OrderList />} />
-      <Route path="/order-details/:orderId" element={<OrderDetails />} />
+      <Route path="/orders/:orderId" element={<OrderDetails />} />
     </Routes>
   );
 };

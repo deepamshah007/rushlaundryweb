@@ -11,8 +11,7 @@ import { AuthContext } from "../../contexts/AuthContext";
 
 const Account = () => {
   const [orderHistory, setOrderHistory] = useState(null);
-  const { handleLogout, token, userData, laundryData } =
-    useContext(AuthContext);
+  const { handleLogout, token, userData } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchOrderHistory = async () => {
@@ -83,7 +82,7 @@ const Account = () => {
             </Typography>
             {userData.userType === "laundry" && (
               <Typography variant="body1" style={{ marginBottom: "0.5rem" }}>
-                Laundry: {userData.laundryId}
+                LaundryID: {userData.laundryId}
               </Typography>
             )}
             <Typography variant="body1" style={{ marginBottom: "0.5rem" }}>
