@@ -72,6 +72,17 @@ const OrderDetails = () => {
     }
   };
 
+  const getCheckboxLabel = (status) => {
+    switch (status) {
+      case "Delivered to Laundry":
+        return "Accepted by Laundry";
+      case "Accepted by Laundry":
+        return "Ready to Pick";
+      default:
+        return "";
+    }
+  };
+
   if (!order) {
     return (
       <Container
@@ -136,27 +147,24 @@ const OrderDetails = () => {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={order.status === "Delivery Confirmed by Laundry"}
-                  onChange={() =>
-                    updateOrderStatus("Delivery Confirmed by Laundry")
-                  }
-                  disabled={order.status === "Delivery Confirmed by Laundry"}
+                  checked={order.status === "Accepted by Laundry"}
+                  onChange={() => updateOrderStatus("Accepted by Laundry")}
+                  disabled={order.status === "Accepted by Laundry"}
                 />
               }
-              label="Mark as Received"
+              label="Accepted by Laundry"
             />
           )}
 
-          {order.status === "Delivery Confirmed by Laundry" && (
+          {order.status === "Accepted by Laundry" && (
             <FormControlLabel
               control={
                 <Checkbox
                   checked={order.status === "Ready to Pick"}
                   onChange={() => updateOrderStatus("Ready to Pick")}
-                  disabled={order.status === "Ready to Pick"}
                 />
               }
-              label="Mark as Ready to Pick"
+              label="Ready to Pick"
             />
           )}
         </CardContent>

@@ -29,6 +29,7 @@ const CurrentOrderDetail = () => {
   const [riderLocation, setRiderLocation] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
   const [isDeliveredToLaundry, setIsDeliveredToLaundry] = useState(false);
+  const [isDeliveredToCustomer, setIsDeliveredToCustomer] = useState(false);
 
   useEffect(() => {
     const getCurrentLocation = () => {
@@ -131,6 +132,14 @@ const CurrentOrderDetail = () => {
     }
   };
 
+  const handleDeliveredToCustomerChange = async (event) => {
+    const isChecked = event.target.checked;
+    setIsDeliveredToCustomer(isChecked);
+    if (isChecked) {
+      await updateOrderStatus("Delivered to Customer");
+    }
+  };
+
   if (!order) {
     return (
       <Box
@@ -217,17 +226,32 @@ const CurrentOrderDetail = () => {
         <Typography>
           Expected Time: {new Date(order.expectedReceiveTime).toLocaleString()}
         </Typography>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={isDeliveredToLaundry}
-              onChange={handleDeliveredToLaundryChange}
-              color="primary"
-              disabled={isDeliveredToLaundry}
-            />
-          }
-          label="Delivered to Laundry"
-        />
+        {order.status === "Agreed by Rider" && (
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isDeliveredToLaundry}
+                onChange={handleDeliveredToLaundryChange}
+                color="primary"
+                disabled={isDeliveredToLaundry}
+              />
+            }
+            label="Delivered to Laundry"
+          />
+        )}
+        {order.status === "Accepted by Rider" && (
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isDeliveredToCustomer}
+                onChange={handleDeliveredToCustomerChange}
+                color="primary"
+                disabled={isDeliveredToCustomer}
+              />
+            }
+            label="Delivered to Laundry"
+          />
+        )}
       </Paper>
     </Box>
   );

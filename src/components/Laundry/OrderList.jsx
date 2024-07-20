@@ -27,8 +27,6 @@ const OrderList = () => {
       return;
     }
 
-    console.log("LAUNDRYDATA", laundryData);
-
     try {
       const response = await fetch(
         `https://rush-laundry-0835134be79d.herokuapp.com/api/orders/laundry/${laundryData._id}`,
@@ -188,7 +186,7 @@ const OrderList = () => {
               <Button
                 variant="contained"
                 onClick={() => {
-                  navigate(`/orders/${order._id}`);
+                  navigate(`/laundry/orders/${order._id}`);
                 }}
               >
                 View Details

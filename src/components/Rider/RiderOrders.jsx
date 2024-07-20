@@ -111,9 +111,15 @@ const RiderOrders = () => {
         }
       );
 
+      console.log(response.data);
+
       if (response.data) {
         console.log("Order accepted successfully");
-        updateOrderStatus("Accepted by Rider", order._id);
+        if (order.status === "Accepted by Laundry") {
+          updateOrderStatus("Accepted by Rider", order._id);
+        } else if (order.status === "Ready to Pick") {
+          updateOrderStatus("Agreed by Rider", order._id);
+        }
       } else {
         console.log("Failed to accept the order");
       }

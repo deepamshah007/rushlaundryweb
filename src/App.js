@@ -50,7 +50,7 @@ function App() {
               element={<PrivateRoute element={<LaundryDetails />} />}
             />
             <Route
-              path="/laundry/:laundryId/orders"
+              path="/laundry/orders/:orderId"
               element={<PrivateRoute element={<LaundryOrders />} />}
             />
             <Route
