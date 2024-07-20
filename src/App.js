@@ -11,7 +11,6 @@ import Settings from "./components/Home/Settings";
 import NavBar from "./components/NavBar";
 import PrivateRoute from "./components/PrivateRoute";
 import LaundryDetails from "./components/Home/LaundryDetails";
-import LaundryList from "./components/Laundry/OrderList";
 import LaundryOrders from "./components/Laundry/OrderDetails";
 import RiderScreen from "./components/Rider/RiderScreen";
 import CurrentOrderDetails from "./components/Rider/CurrentOrderDetails";

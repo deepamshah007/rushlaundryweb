@@ -25,8 +25,6 @@ const CurrentOrderDetail = () => {
   const { orderId } = useParams();
   const { token } = useContext(AuthContext);
 
-  const [isLaundryReceived, setIsLaundryReceived] = useState(false);
-  const [qrCodeData, setQrCodeData] = useState(null);
   const [order, setOrder] = useState(null);
   const [riderLocation, setRiderLocation] = useState(null);
   const [showCamera, setShowCamera] = useState(false);
@@ -112,9 +110,7 @@ const CurrentOrderDetail = () => {
   const handleScan = useCallback(
     (data) => {
       if (data && order) {
-        setQrCodeData(data);
         if (data === order._id) {
-          setIsLaundryReceived(true);
           updateOrderStatus("Received by Rider");
           setShowCamera(false);
         }
