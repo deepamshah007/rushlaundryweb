@@ -94,6 +94,8 @@ const LaundryDetails = () => {
   };
 
   const isOpen = () => {
+    if (!laundry || !laundry.openingHours) return "Closed";
+
     const now = new Date();
     const dayOfWeek = now
       .toLocaleString("en-US", { weekday: "long" })
@@ -101,9 +103,11 @@ const LaundryDetails = () => {
 
     const hoursToday = laundry.openingHours[dayOfWeek];
 
-    if (!hoursToday) return "Closed";
+    if (!hoursToday || typeof hoursToday !== "string") return "Closed";
 
     const [openTime, closeTime] = hoursToday.split(" - ");
+
+    if (!openTime || !closeTime) return "Closed";
 
     const convertTo24Hour = (time) => {
       const [hourMin, period] = time.split(" ");
@@ -219,16 +223,16 @@ const LaundryDetails = () => {
             <Typography variant="h5" style={{ marginBottom: "1rem" }}>
               Opening Hours:
             </Typography>
-            {Object.entries(laundry.openingHours).map(([day, hours]) => (
-              <Typography
-                key={day}
-                variant="body1"
-                style={{ marginBottom: "0.5rem" }}
-              >
-                {day.charAt(0).toUpperCase() + day.slice(1)}:{" "}
-                {hours.openingTime} - {hours.closingTime}
-              </Typography>
-            ))}
+            {laundry.openingHours &&
+              Object.entries(laundry.openingHours).map(([day, hours]) => (
+                <Typography
+                  key={day}
+                  variant="body1"
+                  style={{ marginBottom: "0.5rem" }}
+                >
+                  {day.charAt(0).toUpperCase() + day.slice(1)}: {hours}
+                </Typography>
+              ))}
           </div>
         </Fade>
       </Modal>
@@ -244,31 +248,32 @@ const LaundryDetails = () => {
           backgroundColor: "white",
         }}
       >
-        {Object.entries(laundry.services).map(([service, price]) => (
-          <div
-            key={service}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: "0.5rem 1rem",
-              marginBottom: "0.5rem",
-              border: "2px solid #ccc",
-              borderRadius: "8px",
-              backgroundColor: "white",
-              cursor: "pointer",
-            }}
-            onClick={() => handleServiceSelection(service)}
-          >
-            <Checkbox
-              checked={selectedServices.includes(service)}
-              onChange={() => handleServiceSelection(service)}
-              color="primary"
-            />
-            <Typography variant="body1">{service}</Typography>
-            <Typography variant="body1">{price}</Typography>
-          </div>
-        ))}
+        {laundry.services &&
+          Object.entries(laundry.services).map(([service, price]) => (
+            <div
+              key={service}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "0.5rem 1rem",
+                marginBottom: "0.5rem",
+                border: "2px solid #ccc",
+                borderRadius: "8px",
+                backgroundColor: "white",
+                cursor: "pointer",
+              }}
+              onClick={() => handleServiceSelection(service)}
+            >
+              <Checkbox
+                checked={selectedServices.includes(service)}
+                onChange={() => handleServiceSelection(service)}
+                color="primary"
+              />
+              <Typography variant="body1">{service}</Typography>
+              <Typography variant="body1">{price}</Typography>
+            </div>
+          ))}
       </div>
 
       <Typography
