@@ -72,17 +72,6 @@ const OrderDetails = () => {
     }
   };
 
-  const getCheckboxLabel = (status) => {
-    switch (status) {
-      case "Delivered to Laundry":
-        return "Accepted by Laundry";
-      case "Accepted by Laundry":
-        return "Ready to Pick";
-      default:
-        return "";
-    }
-  };
-
   if (!order) {
     return (
       <Container
@@ -143,30 +132,26 @@ const OrderDetails = () => {
           <Typography variant="h6" gutterBottom>
             Actions:
           </Typography>
-          {(order.status === "Delivered to Laundry" ||
-            order.status === "Accepted by Laundry") && (
+          {order.status === "Delivered to Laundry" && (
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={
-                    order.status === "Accepted by Laundry" ||
-                    order.status === "Ready to Pick"
-                  }
-                  onChange={() => {
-                    const newStatus =
-                      order.status === "Delivered to Laundry"
-                        ? "Accepted by Laundry"
-                        : "Ready to Pick";
-                    updateOrderStatus(newStatus);
-                  }}
-                  disabled={
-                    order.status === "Ready to Pick" ||
-                    (order.status === "Accepted by Laundry" &&
-                      order.status !== "Ready to Pick")
-                  }
+                  checked={order.status === "Accepted by Laundry"}
+                  onChange={() => updateOrderStatus("Accepted by Laundry")}
                 />
               }
-              label={getCheckboxLabel(order.status)}
+              label="Accept by Laundry"
+            />
+          )}
+          {order.status === "Accepted by Laundry" && (
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={order.status === "Ready to Pick"}
+                  onChange={() => updateOrderStatus("Ready to Pick")}
+                />
+              }
+              label="Ready to Pick"
             />
           )}
         </CardContent>

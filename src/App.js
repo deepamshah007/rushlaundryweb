@@ -13,6 +13,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import LaundryDetails from "./components/Home/LaundryDetails";
 import LaundryOrders from "./components/Laundry/OrderDetails";
 import RiderScreen from "./components/Rider/RiderScreen";
+import CostumerOrderDetails from "./components/Home/CostumerOrderDetails";
 import CurrentOrderDetails from "./components/Rider/CurrentOrderDetails";
 import AuthProviderWrapper from "./contexts/AuthProviderWrapper";
 import PaymentScreen from "./components/Home/PaymentScreen";
@@ -58,8 +59,12 @@ function App() {
               element={<PrivateRoute element={<RiderScreen />} />}
             />
             <Route
-              path="/orders/:orderId"
+              path="/rider/order/:orderId"
               element={<PrivateRoute element={<CurrentOrderDetails />} />}
+            />
+            <Route
+              path="/orders/:orderId"
+              element={<PrivateRoute element={<CostumerOrderDetails />} />}
             />
             <Route
               path="/payment/:laundryId"

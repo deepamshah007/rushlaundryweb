@@ -164,6 +164,9 @@ const LaundryDetails = () => {
       <Typography variant="body1" style={{ marginBottom: "1rem" }}>
         Address: {laundry.address}
       </Typography>
+      <Typography variant="body1" style={{ marginBottom: "1rem" }}>
+        {laundry.description}
+      </Typography>
 
       <Button
         onClick={() => setModalVisible(true)}
@@ -184,8 +187,6 @@ const LaundryDetails = () => {
         open={modalVisible}
         onClose={() => setModalVisible(false)}
         closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{ timeout: 500 }}
         style={{
           display: "flex",
           alignItems: "center",

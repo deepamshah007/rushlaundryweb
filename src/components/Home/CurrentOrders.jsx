@@ -10,12 +10,14 @@ import {
 import { AuthContext } from "../../contexts/AuthContext";
 import NextCard from "../NextCard";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const CurrentOrders = () => {
   const { token, userData } = useContext(AuthContext);
   const [currentOrders, setCurrentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const fetchCurrentOrders = useCallback(async () => {
     try {
@@ -58,7 +60,11 @@ const CurrentOrders = () => {
             Current Orders
           </Typography>
           {currentOrders.map((order) => (
-            <Card key={order._id} sx={{ mb: 2 }}>
+            <Card
+              key={order._id}
+              sx={{ mb: 2 }}
+              onClick={() => navigate(`/orders/${order._id}`)}
+            >
               <CardContent>
                 <NextCard
                   service={order.service

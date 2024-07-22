@@ -12,7 +12,6 @@ import {
 import { ArrowBack } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
-import QRCode from "qrcode.react";
 
 const CustomerOrderDetails = () => {
   const navigate = useNavigate();
@@ -128,18 +127,6 @@ const CustomerOrderDetails = () => {
             })}`}
           </Typography>
           <Typography variant="body1">Status: {order.status}</Typography>
-        </CardContent>
-      </Card>
-
-      <Card
-        style={{
-          marginBottom: "20px",
-          display: "flex",
-          justifyContent: "center",
-        }}
-      >
-        <CardContent>
-          <QRCode value={order._id} size={150} />
         </CardContent>
       </Card>
 

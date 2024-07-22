@@ -187,7 +187,7 @@ const RiderOrders = () => {
               <Button
                 variant="contained"
                 color="primary"
-                onClick={() => navigate(`/orders/${order._id}`)}
+                onClick={() => navigate(`/rider/order/${order._id}`)}
               >
                 View Details
               </Button>

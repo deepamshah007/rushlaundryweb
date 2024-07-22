@@ -123,7 +123,9 @@ const PaymentScreen = () => {
         setClientSecret(data.clientSecret);
       } catch (error) {
         console.error("Error creating payment intent:", error);
-        setError("Failed to initialize payment. Please try again.");
+        setError(
+          "Failed to initialize payment because it was blocked by the browser. Please turn off any proxy or ad blocker and try again."
+        );
       }
     };
 

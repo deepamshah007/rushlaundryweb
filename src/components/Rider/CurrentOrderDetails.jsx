@@ -230,23 +230,23 @@ const CurrentOrderDetail = () => {
           <FormControlLabel
             control={
               <Checkbox
-                checked={isDeliveredToLaundry}
-                onChange={handleDeliveredToLaundryChange}
+                checked={isDeliveredToCustomer}
+                onChange={handleDeliveredToCustomerChange}
                 color="primary"
-                disabled={isDeliveredToLaundry}
+                disabled={isDeliveredToCustomer}
               />
             }
-            label="Delivered to Laundry"
+            label="Delivered to Costumer"
           />
         )}
         {order.status === "Accepted by Rider" && (
           <FormControlLabel
             control={
               <Checkbox
-                checked={isDeliveredToCustomer}
-                onChange={handleDeliveredToCustomerChange}
+                checked={isDeliveredToLaundry}
+                onChange={handleDeliveredToLaundryChange}
                 color="primary"
-                disabled={isDeliveredToCustomer}
+                disabled={isDeliveredToLaundry}
               />
             }
             label="Delivered to Laundry"
