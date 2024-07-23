@@ -1,133 +1,118 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
-import {
-  Container,
-  Box,
-  TextField,
-  IconButton,
-  Card,
-  CardContent,
-  CircularProgress,
-  Alert,
-} from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import { AuthContext } from "../../contexts/AuthContext";
-import LaundryCard from "../LaundryCard";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import { Box, Typography, Grid, Card, CardContent, CardMedia, Button } from '@mui/material';
 
 const HomeView = () => {
-  const { loading: authLoading } = useContext(AuthContext);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [laundryData, setLaundryData] = useState([]);
-  const [filteredLaundryData, setFilteredLaundryData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
-
-  const fetchLaundryData = useCallback(async () => {
-    try {
-      const response = await axios.get(
-        "https://rush-laundry-0835134be79d.herokuapp.com/api/laundry"
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching laundry data:", error);
-      throw new Error("Failed to fetch laundry data");
-    }
-  }, []);
-
-  const fetchData = useCallback(async () => {
-    if (authLoading) return;
-
-    try {
-      setLoading(true);
-
-      const laundryResponse = await fetchLaundryData();
-
-      setLaundryData(laundryResponse);
-      setFilteredLaundryData(laundryResponse);
-
-      setLoading(false);
-    } catch (err) {
-      console.error("Error fetching data:", err);
-      setError(err.message);
-      setLoading(false);
-    }
-  }, [authLoading, fetchLaundryData]);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  const handleSearch = (event) => {
-    const query = event.target.value;
-    setSearchQuery(query);
-
-    if (query.trim() === "") {
-      setFilteredLaundryData(laundryData);
-    } else {
-      const filteredData = laundryData.filter((laundry) =>
-        laundry.name.toLowerCase().includes(query.toLowerCase())
-      );
-      setFilteredLaundryData(filteredData);
-    }
-  };
-
-  const handleLaundryPress = (laundryId) => {
-    navigate(`/laundry/${laundryId}`);
-  };
-
-  if (authLoading || loading) {
-    return <CircularProgress />;
-  }
-
   return (
-    <Container>
-      <Box sx={{ my: 4 }}>
-        <Box
+    <Box
+      sx={{
+        backgroundColor: '#ffffff', // White background color for the entire page
+        padding: '2rem',
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          alignItems: 'center',
+          backgroundColor: '#00C4CC', // Sky blue background for the top section
+          padding: '2rem',
+          borderRadius: '8px',
+          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+          marginBottom: '2rem',
+        }}
+      >
+        <img
+          src="/company_logo.png" // Update with the correct path to your logo
+          alt="Company Logo"
+          style={{ height: '200px', width: 'auto', marginRight: '2rem' }} // Adjust the size and margin as needed
+        />
+        <Typography
+          variant="h4"
+          component="h1"
+          sx={{ color: 'white', textAlign: { xs: 'center', md: 'left' } }}
+        >
+          EXPERIENCE THE ULTIMATE CONVENIENCE WITH RUSH LAUNDRY - COMING SOON!
+        </Typography>
+      </Box>
+
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          marginBottom: '2rem',
+        }}
+      >
+        <Button
+          variant="contained"
           sx={{
-            display: "flex",
-            alignItems: "center",
-            mb: 4,
-            p: 2,
-            border: "1px solid #ccc",
-            borderRadius: 1,
-            backgroundColor: "#fff",
+            backgroundColor: '#00C4CC',
+            color: 'white',
+            '&:hover': {
+              backgroundColor: '#00B2B8',
+            },
           }}
         >
-          <IconButton>
-            <SearchIcon />
-          </IconButton>
-          <TextField
-            fullWidth
-            placeholder="Search nearest laundry"
-            value={searchQuery}
-            onChange={handleSearch}
-            variant="outlined"
-          />
-        </Box>
+          Subscribe Now
+        </Button>
+      </Box>
 
-        {error && <Alert severity="error">{error}</Alert>}
-
-        {filteredLaundryData.map((laundry) => (
-          <Card
-            key={laundry._id}
-            onClick={() => handleLaundryPress(laundry._id)}
-            sx={{ mb: 2, cursor: "pointer" }}
-          >
+      <Grid container spacing={4} sx={{ marginTop: '2rem' }}>
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardMedia
+              component="img"
+              alt="For Homeowners"
+              height="140"
+              src="/company_logo.png" // Update with the correct path to the image
+            />
             <CardContent>
-              <LaundryCard
-                name={laundry.name}
-                location={laundry.location}
-                services={laundry.services}
-                prices={laundry.prices}
-                rating={laundry.rating}
-              />
+              <Typography variant="h5" component="div" gutterBottom>
+                For Homeowners
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Tired of spending hours doing laundry? Say goodbye to the hassle and hello to more time with your family! Our online laundry service is here to save you time and effort. With a simple click, your laundry will be delivered right to your doorstep, cutting down your personal energy costs.
+              </Typography>
             </CardContent>
           </Card>
-        ))}
-      </Box>
-    </Container>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardMedia
+              component="img"
+              alt="For Working Professionals"
+              height="140"
+              src="/company_logo.png" // Update with the correct path to the image
+            />
+            <CardContent>
+              <Typography variant="h5" component="div" gutterBottom>
+                For Working Professionals
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Work, family, and laundry - the trifecta of life's daily struggles. But with our online laundry service, you can relax and let us handle the work. Our fast and convenient service will save you time and effort, and the best part? Your freshly cleaned clothes will be delivered straight to your doorstep!
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardMedia
+              component="img"
+              alt="For Students"
+              height="140"
+              src="/company_logo.png" // Update with the correct path to the image
+            />
+            <CardContent>
+              <Typography variant="h5" component="div" gutterBottom>
+                For Students
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Balancing University and laundry can be a challenge. Let us take the burden off your shoulders. Our online laundry service will save you time and effort so you can focus on your studies. Get your clean clothes delivered right to your doorstep and never miss a deadline again!
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
   );
 };
 

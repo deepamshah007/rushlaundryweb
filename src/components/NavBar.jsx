@@ -2,7 +2,6 @@ import React, { useContext } from "react";
 import {
   AppBar,
   Toolbar,
-  Typography,
   Button,
   IconButton,
   Menu,
@@ -38,198 +37,221 @@ const NavBar = () => {
   return (
     <AppBar
       position="static"
-      sx={{ backgroundColor: "#0a1f44", padding: "0.5rem 2rem" }}
+      sx={{ backgroundColor: "#ffffff", padding: "0.5rem 2rem" }}
     >
-      <Toolbar>
+      <Toolbar sx={{ justifyContent: "space-between" }}>
         <img
           src="/company_logo.png"
           alt="Company Logo"
-          style={{ height: "40px", marginRight: "0.5rem" }}
+          style={{ height: "80px", marginRight: "0.5rem" }}
         />
-        <Typography
-          variant="h6"
-          sx={{
-            flexGrow: 1,
-            fontFamily: "Roboto",
-            fontWeight: 700,
-            marginLeft: "0.5rem",
-          }}
-        >
-          Rush Laundry
-        </Typography>
-        {isMobile ? (
-          <>
-            <IconButton
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              onClick={handleMenu}
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorEl}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
-            >
+        <div style={{ display: "flex", justifyContent: "flex-end", flexGrow: 1 }}>
+          {isMobile ? (
+            <>
+              <IconButton
+                edge="start"
+                sx={{ color: "#000000 !important" }} // Add !important to ensure the color is applied
+                aria-label="menu"
+                onClick={handleMenu}
+              >
+                <MenuIcon />
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                {token && userData?.userType === "customer" && (
+                  <>
+                    <MenuItem sx={{ color: "#000000 !important" }} onClick={() => handleNavigation("/home")}>
+                      Home
+                    </MenuItem>
+                    <MenuItem sx={{ color: "#000000 !important" }} onClick={() => handleNavigation("/")}>
+                      Services
+                    </MenuItem>
+                    <MenuItem sx={{ color: "#000000 !important" }} onClick={() => handleNavigation("/account")}>
+                      Account
+                    </MenuItem>
+                    <MenuItem sx={{ color: "#000000 !important" }} onClick={() => handleNavigation("/orders")}>
+                      Current Orders
+                    </MenuItem>
+                    <MenuItem sx={{ color: "#000000 !important" }} onClick={() => handleNavigation("/settings")}>
+                      Settings
+                    </MenuItem>
+                    <MenuItem sx={{ color: "#000000 !important" }} onClick={handleLogout}>
+                      Logout
+                    </MenuItem>
+                  </>
+                )}
+                {token && userData?.userType === "rider" && (
+                  <>
+                    <MenuItem sx={{ color: "#000000 !important" }} onClick={() => handleNavigation("/home")}>
+                      Home
+                    </MenuItem>
+                    <MenuItem sx={{ color: "#000000 !important" }} onClick={() => handleNavigation("/riderScreen")}>
+                      Rider Screen
+                    </MenuItem>
+                    <MenuItem sx={{ color: "#000000 !important" }} onClick={handleLogout}>
+                      Logout
+                    </MenuItem>
+                  </>
+                )}
+                {token && userData?.userType === "laundry" && (
+                  <>
+                    <MenuItem sx={{ color: "#000000 !important" }} onClick={() => handleNavigation("/home")}>
+                      Home
+                    </MenuItem>
+                    <MenuItem sx={{ color: "#000000 !important" }} onClick={() => handleNavigation("/laundryDashboard")}>
+                      Dashboard
+                    </MenuItem>
+                    <MenuItem sx={{ color: "#000000 !important" }} onClick={() => handleNavigation("/laundryOrders")}>
+                      Orders
+                    </MenuItem>
+                    <MenuItem sx={{ color: "#000000 !important" }} onClick={() => handleNavigation("/laundryAccount")}>
+                      Account
+                    </MenuItem>
+                    <MenuItem sx={{ color: "#000000 !important" }} onClick={() => handleNavigation("/laundrySettings")}>
+                      Settings
+                    </MenuItem>
+                    <MenuItem sx={{ color: "#000000 !important" }} onClick={handleLogout}>
+                      Logout
+                    </MenuItem>
+                  </>
+                )}
+              </Menu>
+            </>
+          ) : (
+            <>
               {token && userData?.userType === "customer" && (
                 <>
-                  <MenuItem onClick={() => handleNavigation("/")}>
+                  <Button
+                    sx={{ color: "#000000 !important", marginRight: "1rem" }}
+                    onClick={() => handleNavigation("/home")}
+                    style={{ fontSize: "1rem", fontWeight: 500 }}
+                  >
                     Home
-                  </MenuItem>
-                  <MenuItem onClick={() => handleNavigation("/account")}>
-                    Account
-                  </MenuItem>
-                  <MenuItem onClick={() => handleNavigation("/orders")}>
+                  </Button>
+                  <Button
+                    sx={{ color: "#000000 !important", marginRight: "1rem" }}
+                    onClick={() => handleNavigation("/")}
+                    style={{ fontSize: "1rem", fontWeight: 500 }}
+                  >
+                    Services
+                  </Button>
+                  <Button
+                    sx={{ color: "#000000 !important", marginRight: "1rem" }}
+                    onClick={() => handleNavigation("/orders")}
+                    style={{ fontSize: "1rem", fontWeight: 500 }}
+                  >
                     Current Orders
-                  </MenuItem>
-                  <MenuItem onClick={() => handleNavigation("/settings")}>
+                  </Button>
+                  <Button
+                    sx={{ color: "#000000 !important", marginRight: "1rem" }}
+                    onClick={() => handleNavigation("/account")}
+                    style={{ fontSize: "1rem", fontWeight: 500 }}
+                  >
+                    Account
+                  </Button>
+                  <Button
+                    sx={{ color: "#000000 !important", marginRight: "1rem" }}
+                    onClick={() => handleNavigation("/settings")}
+                    style={{ fontSize: "1rem", fontWeight: 500 }}
+                  >
                     Settings
-                  </MenuItem>
-                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                  </Button>
+                  <Button
+                    sx={{ color: "#000000 !important", marginRight: "1rem" }}
+                    onClick={handleLogout}
+                    style={{ fontSize: "1rem", fontWeight: 500 }}
+                  >
+                    Logout
+                  </Button>
                 </>
               )}
               {token && userData?.userType === "rider" && (
                 <>
-                  <MenuItem onClick={() => handleNavigation("/riderScreen")}>
+                  <Button
+                    sx={{ color: "#000000 !important", marginRight: "1rem" }}
+                    onClick={() => handleNavigation("/home")}
+                    style={{ fontSize: "1rem", fontWeight: 500 }}
+                  >
+                    Home
+                  </Button>
+                  <Button
+                    sx={{ color: "#000000 !important", marginRight: "1rem" }}
+                    onClick={() => handleNavigation("/riderScreen")}
+                    style={{ fontSize: "1rem", fontWeight: 500 }}
+                  >
                     Rider Screen
-                  </MenuItem>
-                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                  </Button>
+                  <Button
+                    sx={{ color: "#000000 !important", marginRight: "1rem" }}
+                    onClick={handleLogout}
+                    style={{ fontSize: "1rem", fontWeight: 500 }}
+                  >
+                    Logout
+                  </Button>
                 </>
               )}
               {token && userData?.userType === "laundry" && (
                 <>
-                  <MenuItem
-                    onClick={() => handleNavigation("/laundryDashboard")}
+                  <Button
+                    sx={{ color: "#000000 !important", marginRight: "1rem" }}
+                    onClick={() => handleNavigation("/home")}
+                    style={{ fontSize: "1rem", fontWeight: 500 }}
+                  >
+                    Home
+                  </Button>
+                  <Button
+                    sx={{ color: "#000000 !important", marginRight: "1rem" }}
+                    onClick={() => handleNavigation("/laundry")}
+                    style={{ fontSize: "1rem", fontWeight: 500 }}
                   >
                     Dashboard
-                  </MenuItem>
-                  <MenuItem onClick={() => handleNavigation("/laundryOrders")}>
+                  </Button>
+                  <Button
+                    sx={{ color: "#000000 !important", marginRight: "1rem" }}
+                    onClick={() => handleNavigation("/laundryOrders")}
+                    style={{ fontSize: "1rem", fontWeight: 500 }}
+                  >
                     Orders
-                  </MenuItem>
-                  <MenuItem onClick={() => handleNavigation("/laundryAccount")}>
+                  </Button>
+                  <Button
+                    sx={{ color: "#000000 !important", marginRight: "1rem" }}
+                    onClick={() => handleNavigation("/Account")}
+                    style={{ fontSize: "1rem", fontWeight: 500 }}
+                  >
                     Account
-                  </MenuItem>
-                  <MenuItem
-                    onClick={() => handleNavigation("/laundrySettings")}
+                  </Button>
+                  <Button
+                    sx={{ color: "#000000 !important", marginRight: "1rem" }}
+                    onClick={() => handleNavigation("/Settings")}
+                    style={{ fontSize: "1rem", fontWeight: 500 }}
                   >
                     Settings
-                  </MenuItem>
-                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                  </Button>
+                  <Button
+                    sx={{ color: "#000000 !important", marginRight: "1rem" }}
+                    onClick={handleLogout}
+                    style={{ fontSize: "1rem", fontWeight: 500 }}
+                  >
+                    Logout
+                  </Button>
                 </>
               )}
-            </Menu>
-          </>
-        ) : (
-          <>
-            {token && userData?.userType === "customer" && (
-              <>
-                <Button
-                  color="inherit"
-                  onClick={() => handleNavigation("/")}
-                  sx={{ fontSize: "1rem", fontWeight: 500 }}
-                >
-                  Home
-                </Button>
-                <Button
-                  color="inherit"
-                  onClick={() => handleNavigation("/orders")}
-                  sx={{ fontSize: "1rem", fontWeight: 500 }}
-                >
-                  Current Orders
-                </Button>
-                <Button
-                  color="inherit"
-                  onClick={() => handleNavigation("/account")}
-                  sx={{ fontSize: "1rem", fontWeight: 500 }}
-                >
-                  Account
-                </Button>
-                <Button
-                  color="inherit"
-                  onClick={() => handleNavigation("/settings")}
-                  sx={{ fontSize: "1rem", fontWeight: 500 }}
-                >
-                  Settings
-                </Button>
-                <Button
-                  color="inherit"
-                  onClick={handleLogout}
-                  sx={{ fontSize: "1rem", fontWeight: 500 }}
-                >
-                  Logout
-                </Button>
-              </>
-            )}
-            {token && userData?.userType === "rider" && (
-              <>
-                <Button
-                  color="inherit"
-                  onClick={() => handleNavigation("/riderScreen")}
-                  sx={{ fontSize: "1rem", fontWeight: 500 }}
-                >
-                  Rider Screen
-                </Button>
-                <Button
-                  color="inherit"
-                  onClick={handleLogout}
-                  sx={{ fontSize: "1rem", fontWeight: 500 }}
-                >
-                  Logout
-                </Button>
-              </>
-            )}
-            {token && userData?.userType === "laundry" && (
-              <>
-                <Button
-                  color="inherit"
-                  onClick={() => handleNavigation("/laundry")}
-                  sx={{ fontSize: "1rem", fontWeight: 500 }}
-                >
-                  Dashboard
-                </Button>
-                <Button
-                  color="inherit"
-                  onClick={() => handleNavigation("/laundryOrders")}
-                  sx={{ fontSize: "1rem", fontWeight: 500 }}
-                >
-                  Orders
-                </Button>
-                <Button
-                  color="inherit"
-                  onClick={() => handleNavigation("/Account")}
-                  sx={{ fontSize: "1rem", fontWeight: 500 }}
-                >
-                  Account
-                </Button>
-                <Button
-                  color="inherit"
-                  onClick={() => handleNavigation("/Settings")}
-                  sx={{ fontSize: "1rem", fontWeight: 500 }}
-                >
-                  Settings
-                </Button>
-                <Button
-                  color="inherit"
-                  onClick={handleLogout}
-                  sx={{ fontSize: "1rem", fontWeight: 500 }}
-                >
-                  Logout
-                </Button>
-              </>
-            )}
-          </>
-        )}
+            </>
+          )}
+        </div>
       </Toolbar>
     </AppBar>
   );

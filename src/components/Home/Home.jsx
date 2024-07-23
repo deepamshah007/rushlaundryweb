@@ -1,23 +1,42 @@
-import React from "react";
-import { Routes, Route } from "react-router-dom";
+import React from 'react';
+import { Box, Typography } from '@mui/material';
 
-import HomeView from "./HomeView";
-// import LaundryDetails from "./LaundryDetails";
-// import PaymentScreen from "./PaymentScreen";
-import CustomerOrderDetails from "./CustomerOrderDetails";
-
-function Home() {
+const Home = () => {
   return (
-    <Routes>
-      <Route path="/" element={<HomeView />} />
-      {/* <Route path="/laundry-details" element={<LaundryDetails />} /> */}
-      {/* <Route path="/payment" element={<PaymentScreen />} /> */}
-      <Route
-        path="/order-details/:orderId"
-        element={<CustomerOrderDetails />}
-      />
-    </Routes>
+    <Box
+      sx={{
+        backgroundColor: '#00C4CC',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        padding: '2rem'
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          maxWidth: '600px',
+          textAlign: 'center',
+          backgroundColor: 'white',
+          padding: '2rem',
+          borderRadius: '8px',
+          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+        }}
+      >
+        <img
+          src="/images/laundry.png" // Update with the correct path to the image
+          alt="Laundry"
+          style={{ width: '100%', borderRadius: '8px', marginBottom: '1rem' }}
+        />
+        <Typography variant="h4" component="h1" gutterBottom>
+          EXPERIENCE THE ULTIMATE CONVENIENCE WITH RUSH LAUNDRY - COMING SOON!
+        </Typography>
+      </Box>
+    </Box>
   );
-}
+};
 
 export default Home;

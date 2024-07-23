@@ -1,9 +1,24 @@
+body {
+  background-color: skyblue; /* Default skyblue background for the entire app */
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
 .App {
   text-align: center;
 }
 
 .App-logo {
-  height: 40vmin;
+  height: 80vmin;
   pointer-events: none;
 }
 
@@ -14,18 +29,18 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: #ffffff; /* White background color for the header */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  font-size: calc(20px + 2vmin);
+  color: rgb(255, 255, 255);
 }
 
 .App-link {
-  color: #61dafb;
+  color: #000000;
 }
 
 @keyframes App-logo-spin {
@@ -35,4 +50,88 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Additional styles for the Home page */
+.Home {
+  background-color: #ffffff; /* White background for Home page */
+  padding: 2rem;
+}
+
+.Home .section {
+  background-color: #00C4CC; /* Skyblue section background */
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.Home .section img {
+  height: 200px;
+  width: auto;
+  margin-right: 1rem;
+}
+
+.Home .section .text {
+  color: white;
+}
+
+.Home .cards {
+  margin-top: 2rem;
+}
+
+.Home .card {
+  margin-bottom: 2rem;
+}
+
+.Home .subscribe-button {
+  background-color: #00C4CC;
+  color: white;
+  margin-bottom: 2rem;
+}
+
+.Home .subscribe-button:hover {
+  background-color: #00B2B8;
+}
+
+/* Footer styles */
+.footer {
+  background-color: #00796b; /* Dark teal background color */
+  color: white;
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.footer a {
+  color: inherit;
+  margin: 0 1rem;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* Styles for square box layout */
+.square-box {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.square-box .store-card {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  width: 300px; /* Adjust the size as needed */
+  height: 300px; /* Adjust the size as needed */
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-bottom: 20px;
 }
