@@ -4,13 +4,10 @@ import { Box, Typography, Link } from '@mui/material';
 const Footer = () => {
   return (
     <Box className="footer">
-      <Typography variant="h6" sx={{ marginBottom: '1rem' }}>
+      <Typography variant="h6" sx={{ marginBottom: '1rem', fontWeight: 'bold', fontSize: '2.5rem' }}>
         Rush Laundry Ltd
       </Typography>
       <Box sx={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '1rem' }}>
-        <Link href="#" color="inherit">
-          in
-        </Link>
         <Link href="#" color="inherit">
           <i className="fab fa-instagram"></i>
         </Link>
@@ -30,7 +27,7 @@ const Footer = () => {
         </Link>
       </Box>
       <Typography variant="body2">
-        Copyright © 2023 Rush Laundry Ltd - All Rights Reserved.
+        Copyright © 2024 Rush Laundry Ltd - All Rights Reserved.
       </Typography>
     </Box>
   );

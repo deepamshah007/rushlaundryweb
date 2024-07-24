@@ -68,7 +68,7 @@ const Settings = () => {
   };
 
   return (
-    <Container maxWidth="sm">
+    <Container maxWidth="sm" sx={{ backgroundColor: 'white', padding: '2rem', borderRadius: '8px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)' }}>
       <Box mt={4} mb={4}>
         <Typography variant="h4" gutterBottom>
           Settings

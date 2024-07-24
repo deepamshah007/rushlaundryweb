@@ -22,9 +22,9 @@ const HomeView = () => {
         }}
       >
         <img
-          src="/company_logo.png" // Update with the correct path to your logo
+          src={`${process.env.PUBLIC_URL}/rushlaundry-1.png`} // Update with the correct path to your logo
           alt="Company Logo"
-          style={{ height: '200px', width: 'auto', marginRight: '2rem' }} // Adjust the size and margin as needed
+          style={{ height: '350px', width: 'auto', marginRight: '4rem' }} // Adjust the size and margin as needed
         />
         <Typography
           variant="h4"
@@ -63,7 +63,7 @@ const HomeView = () => {
               component="img"
               alt="For Homeowners"
               height="140"
-              src="/company_logo.png" // Update with the correct path to the image
+              src={`${process.env.PUBLIC_URL}/home.png`} // Update with the correct path to the image
             />
             <CardContent>
               <Typography variant="h5" component="div" gutterBottom>
@@ -81,7 +81,7 @@ const HomeView = () => {
               component="img"
               alt="For Working Professionals"
               height="140"
-              src="/company_logo.png" // Update with the correct path to the image
+              src={`${process.env.PUBLIC_URL}/work.png`} // Update with the correct path to the image
             />
             <CardContent>
               <Typography variant="h5" component="div" gutterBottom>
@@ -99,7 +99,7 @@ const HomeView = () => {
               component="img"
               alt="For Students"
               height="140"
-              src="/company_logo.png" // Update with the correct path to the image
+              src={`${process.env.PUBLIC_URL}/students.png`} // Update with the correct path to the image
             />
             <CardContent>
               <Typography variant="h5" component="div" gutterBottom>
