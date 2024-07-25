@@ -155,9 +155,14 @@ const CurrentOrderDetail = () => {
 
   return (
     <Box p={4} bgcolor="#e3f2fd" minHeight="100vh">
-      <IconButton onClick={() => navigate(-1)}>
-        <ArrowBackIcon />
-      </IconButton>
+      <Box display="flex" justifyContent="flex-start">
+        <IconButton
+          onClick={() => navigate(-1)}
+          style={{ marginBottom: "1rem", cursor: "pointer" }}
+        >
+          <ArrowBackIcon />
+        </IconButton>
+      </Box>
 
       <Box mb={4}>
         {riderLocation ? (

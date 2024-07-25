@@ -1,6 +1,12 @@
-body {
-  background-color: skyblue; /* Default skyblue background for the entire app */
+html, body, #root {
+  height: 100%;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+body {
+  background-color: skyblue; 
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -14,52 +20,42 @@ code {
 }
 
 .App {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   text-align: center;
 }
 
-.App-logo {
-  height: 80vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #ffffff; /* White background color for the header */
-  min-height: 100vh;
+.content {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(20px + 2vmin);
-  color: rgb(255, 255, 255);
 }
 
-.App-link {
-  color: #000000;
+footer {
+  background-color: #84c1f0; 
+  color: white;
+  padding: 2rem 0;
+  text-align: center;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.footer a {
+  color: inherit;
+  margin: 0 1rem;
 }
 
-/* Additional styles for the Home page */
+.footer a:hover {
+  text-decoration: underline;
+}
+
+
 .Home {
-  background-color: #ffffff; /* White background for Home page */
+  background-color: #ffffff; 
   padding: 2rem;
 }
 
 .Home .section {
-  background-color: #00C4CC; /* Skyblue section background */
+  background-color: #00C4CC; 
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
@@ -95,24 +91,7 @@ code {
   background-color: #00B2B8;
 }
 
-/* Footer styles */
-.footer {
-  background-color: #84c1f0; /* Dark teal background color */
-  color: white;
-  padding: 2rem 0;
-  text-align: center;
-}
 
-.footer a {
-  color: inherit;
-  margin: 0 1rem;
-}
-
-.footer a:hover {
-  text-decoration: underline;
-}
-
-/* Styles for square box layout */
 .square-box {
   display: flex;
   flex-wrap: wrap;
@@ -120,13 +99,14 @@ code {
   gap: 2rem;
   margin-top: 2rem;
 }
-/* Styles for square Card layout */
+
+
 .square-box .store-card {
   background-color: white;
   border-radius: 8px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  width: 300px; /* Adjust the size as needed */
-  height: 300px; /* Adjust the size as needed */
+  width: 300px; 
+  height: 300px; 
   padding: 1rem;
   display: flex;
   flex-direction: column;

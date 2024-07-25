@@ -6,11 +6,13 @@ import {
   Container,
   Grid,
   Modal,
-  Backdrop,
   Fade,
   CircularProgress,
   IconButton,
   Checkbox,
+  Card,
+  CardContent,
+  Box,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CloseIcon from "@mui/icons-material/Close";
@@ -151,149 +153,154 @@ const LaundryDetails = () => {
         minHeight: "100vh",
       }}
     >
-      <IconButton
-        onClick={() => navigate(-1)}
-        style={{ marginBottom: "1rem", cursor: "pointer" }}
-      >
-        <ArrowBackIcon />
-      </IconButton>
+      <Box display="flex" justifyContent="flex-start">
+        <IconButton
+          onClick={() => navigate(-1)}
+          style={{ marginBottom: "1rem", cursor: "pointer" }}
+        >
+          <ArrowBackIcon />
+        </IconButton>
+      </Box>
 
-      <Typography variant="h3" style={{ marginBottom: "1rem" }}>
-        {laundry.name}
-      </Typography>
-      <Typography variant="body1" style={{ marginBottom: "1rem" }}>
-        Address: {laundry.address}
-      </Typography>
-      <Typography variant="body1" style={{ marginBottom: "1rem" }}>
-        {laundry.description}
-      </Typography>
-
-      <Button
-        onClick={() => setModalVisible(true)}
-        style={{
-          marginBottom: "1rem",
-          cursor: "pointer",
-          border: "2px solid #ccc",
+      <Box
+        sx={{
+          padding: "2rem",
           borderRadius: "8px",
-          padding: "1rem",
-        }}
-        variant="outlined"
-        color="primary"
-      >
-        Click to view Opening Hours
-      </Button>
-
-      <Modal
-        open={modalVisible}
-        onClose={() => setModalVisible(false)}
-        closeAfterTransition
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Fade in={modalVisible}>
-          <div
-            style={{
-              backgroundColor: "white",
-              border: "2px solid #ccc",
-              borderRadius: "8px",
-              padding: "2rem",
-              outline: "none",
-              boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-              minWidth: "50vw",
-              minHeight: "50vh",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <IconButton
-              style={{
-                position: "absolute",
-                top: "1rem",
-                right: "1rem",
-                cursor: "pointer",
-              }}
-              onClick={() => setModalVisible(false)}
-            >
-              <CloseIcon />
-            </IconButton>
-            <Typography variant="h5" style={{ marginBottom: "1rem" }}>
-              Opening Hours:
-            </Typography>
-            {laundry.openingHours &&
-              Object.entries(laundry.openingHours).map(([day, hours]) => (
-                <Typography
-                  key={day}
-                  variant="body1"
-                  style={{ marginBottom: "0.5rem" }}
-                >
-                  {day.charAt(0).toUpperCase() + day.slice(1)}: {hours}
-                </Typography>
-              ))}
-          </div>
-        </Fade>
-      </Modal>
-
-      <Typography variant="h4" style={{ marginBottom: "1rem" }}>
-        Services:
-      </Typography>
-      <div
-        style={{
-          border: "2px solid #ccc",
-          borderRadius: "8px",
-          padding: "1rem",
+          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
           backgroundColor: "white",
         }}
       >
-        {laundry.services &&
-          Object.entries(laundry.services).map(([service, price]) => (
-            <div
-              key={service}
+        <Typography variant="h3" style={{ marginBottom: "1rem" }}>
+          {laundry.name}
+        </Typography>
+        <Typography variant="body1" style={{ marginBottom: "1rem" }}>
+          Address: {laundry.address}
+        </Typography>
+        <Typography variant="body1" style={{ marginBottom: "1rem" }}>
+          {laundry.description}
+        </Typography>
+
+        <Button
+          onClick={() => setModalVisible(true)}
+          style={{
+            marginBottom: "1rem",
+            cursor: "pointer",
+          }}
+          variant="outlined"
+          color="primary"
+        >
+          Click to view Opening Hours
+        </Button>
+
+        <Modal
+          open={modalVisible}
+          onClose={() => setModalVisible(false)}
+          closeAfterTransition
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Fade in={modalVisible}>
+            <Card
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                padding: "0.5rem 1rem",
-                marginBottom: "0.5rem",
-                border: "2px solid #ccc",
-                borderRadius: "8px",
-                backgroundColor: "white",
-                cursor: "pointer",
+                outline: "none",
+                boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                zIndex: 999,
               }}
-              onClick={() => handleServiceSelection(service)}
             >
-              <Checkbox
-                checked={selectedServices.includes(service)}
-                onChange={() => handleServiceSelection(service)}
-                color="primary"
-              />
-              <Typography variant="body1">{service}</Typography>
-              <Typography variant="body1">{price}</Typography>
-            </div>
-          ))}
-      </div>
+              <CardContent>
+                <IconButton
+                  style={{
+                    position: "absolute",
+                    top: "1rem",
+                    right: "1rem",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => setModalVisible(false)}
+                >
+                  <CloseIcon />
+                </IconButton>
+                <Typography variant="h5" style={{ marginBottom: "1rem" }}>
+                  Opening Hours:
+                </Typography>
+                {laundry.openingHours &&
+                  Object.entries(laundry.openingHours).map(([day, hours]) => (
+                    <Typography
+                      key={day}
+                      variant="body1"
+                      style={{ marginBottom: "0.5rem" }}
+                    >
+                      {day.charAt(0).toUpperCase() + day.slice(1)}: {hours}
+                    </Typography>
+                  ))}
+              </CardContent>
+            </Card>
+          </Fade>
+        </Modal>
 
-      <Typography
-        variant="h6"
-        style={{ marginTop: "2rem", marginBottom: "4rem" }}
-      >
-        Total Price: £{calculateTotalPrice()}
-      </Typography>
+        <Typography variant="h4" style={{ marginBottom: "1rem" }}>
+          Services:
+        </Typography>
+        <div
+          style={{
+            border: "1px solid #ccc",
+            borderRadius: "8px",
+            padding: "1rem",
+            backgroundColor: "white",
+          }}
+        >
+          {laundry.services &&
+            Object.entries(laundry.services).map(([service, price]) => (
+              <Card
+                key={service}
+                style={{
+                  marginBottom: "0.5rem",
+                  borderRadius: "8px",
+                  backgroundColor: "#f9f9f9",
+                }}
+                onClick={() => handleServiceSelection(service)}
+              >
+                <CardContent
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "0.5rem 1rem",
+                    cursor: "pointer",
+                  }}
+                >
+                  <Checkbox
+                    checked={selectedServices.includes(service)}
+                    onChange={() => handleServiceSelection(service)}
+                    color="primary"
+                  />
+                  <Typography variant="body1">{service}</Typography>
+                  <Typography variant="body1">{price}</Typography>
+                </CardContent>
+              </Card>
+            ))}
+        </div>
 
-      <Typography variant="body1" style={{ marginBottom: "1rem" }}>
-        {isOpen()}
-      </Typography>
+        <Typography
+          variant="h6"
+          style={{ marginTop: "2rem", marginBottom: "2rem" }}
+        >
+          Total Price: £{calculateTotalPrice()}
+        </Typography>
 
-      <ActionButton
-        title="Place Order"
-        onClick={placeOrder}
-        disabled={selectedServices.length === 0}
-        style={{ width: "100%", borderRadius: "8px" }}
-      />
+        <Typography variant="body1" style={{ marginBottom: "1rem" }}>
+          {isOpen()}
+        </Typography>
+
+        <ActionButton
+          title="Place Order"
+          onClick={placeOrder}
+          disabled={selectedServices.length === 0}
+          style={{ width: "100%", borderRadius: "8px" }}
+        />
+      </Box>
     </Container>
   );
 };

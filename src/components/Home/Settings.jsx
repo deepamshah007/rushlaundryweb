@@ -7,14 +7,11 @@ import {
   Button,
   Switch,
   FormControlLabel,
-  CircularProgress,
-  Alert,
 } from "@mui/material";
 import { AuthContext } from "../../contexts/AuthContext";
-import axios from "axios";
 
 const Settings = () => {
-  const { token, userData, updateUserData } = useContext(AuthContext);
+  const { userData } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     name: userData.name || "",
     email: userData.email || "",
@@ -23,9 +20,6 @@ const Settings = () => {
     confirmNewPassword: "",
     notifications: userData.notifications || false,
   });
-  const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -37,38 +31,49 @@ const Settings = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setErrorMessage(null);
-    setSuccessMessage(null);
+    alert("This service is coming soon");
+    return;
 
-    try {
-      const response = await axios.put(
-        `https://rush-laundry-0835134be79d.herokuapp.com/api/users/${userData._id}`,
-        {
-          name: formData.name,
-          email: formData.email,
-          notifications: formData.notifications,
-          currentPassword: formData.currentPassword,
-          newPassword: formData.newPassword,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    // setLoading(true);
+    // setErrorMessage(null);
+    // setSuccessMessage(null);
 
-      updateUserData(response.data);
-      setSuccessMessage("Settings updated successfully.");
-    } catch (error) {
-      setErrorMessage("Failed to update settings. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    // try {
+    //   const response = await axios.put(
+    //     `https://rush-laundry-0835134be79d.herokuapp.com/api/users/${userData._id}`,
+    //     {
+    //       name: formData.name,
+    //       email: formData.email,
+    //       notifications: formData.notifications,
+    //       currentPassword: formData.currentPassword,
+    //       newPassword: formData.newPassword,
+    //     },
+    //     {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`,
+    //       },
+    //     }
+    //   );
+
+    //   updateUserData(response.data);
+    //   setSuccessMessage("Settings updated successfully.");
+    // } catch (error) {
+    //   setErrorMessage("Failed to update settings. Please try again.");
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   return (
-    <Container maxWidth="sm" sx={{ backgroundColor: 'white', padding: '2rem', borderRadius: '8px', boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)' }}>
+    <Container
+      maxWidth="sm"
+      sx={{
+        backgroundColor: "white",
+        padding: "2rem",
+        borderRadius: "8px",
+        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+      }}
+    >
       <Box mt={4} mb={4}>
         <Typography variant="h4" gutterBottom>
           Settings
@@ -137,7 +142,7 @@ const Settings = () => {
             label="Enable Notifications"
           />
 
-          {loading && <CircularProgress />}
+          {/* {loading && <CircularProgress />}
 
           {successMessage && (
             <Box mt={2}>
@@ -149,16 +154,10 @@ const Settings = () => {
             <Box mt={2}>
               <Alert severity="error">{errorMessage}</Alert>
             </Box>
-          )}
+          )} */}
 
           <Box mt={2}>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              disabled={loading}
-            >
+            <Button type="submit" variant="contained" color="primary" fullWidth>
               Save Changes
             </Button>
           </Box>
