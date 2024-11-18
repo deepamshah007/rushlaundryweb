@@ -5,7 +5,7 @@ const Footer = () => {
   return (
     <Box className="footer">
       <Typography variant="h6" sx={{ marginBottom: '1rem', fontWeight: 'bold', fontSize: '2.5rem' }}>
-        Rush Laundry Ltd
+        Rush Technologies Ltd
       </Typography>
       <Box sx={{ display: 'flex', justifyContent: 'center', gap: '1rem', marginBottom: '1rem' }}>
         <Link href="#" color="inherit">
@@ -27,7 +27,7 @@ const Footer = () => {
         </Link>
       </Box>
       <Typography variant="body2">
-        Copyright © 2024 Rush Laundry Ltd - All Rights Reserved.
+        Copyright © 2024 Rush Technologies Ltd - All Rights Reserved.
       </Typography>
     </Box>
   );
